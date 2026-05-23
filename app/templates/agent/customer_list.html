@@ -1,0 +1,109 @@
+{% extends 'agent/agent_dashboard.html' %}
+{% load static %}
+
+{% block dashboard_title %}My Customers{% endblock %}
+{% block panel_name %}AGENT PANEL{% endblock %}
+
+{% block sidebar_nav %}
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_dashboard' %}active{% endif %}" href="{% url 'agent_dashboard' %}">
+    <i class="bi bi-grid-fill"></i> Dashboard
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'add_customer' %}active{% endif %}" href="{% url 'add_customer' %}">
+    <i class="bi bi-person-plus-fill"></i> Add Customer
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_customer_list' %}active{% endif %}" href="{% url 'agent_customer_list' %}">
+    <i class="bi bi-people-fill"></i> My Customers
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_commission' %}active{% endif %}" href="{% url 'agent_commission' %}">
+    <i class="bi bi-wallet2-fill"></i> My Earnings
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_extra_commission' %}active{% endif %}" href="{% url 'agent_extra_commission' %}">
+    <i class="bi bi-stars-fill"></i> My Extra Commission
+</a>
+{% endblock %}
+
+{% block page_title %}
+    {% if status_filter %}{{ status_filter }} Applications{% else %}My Submitted Applications{% endif %}
+{% endblock %}
+{% block page_subtitle %}
+    {% if status_filter %}
+        Showing applications with status '{{ status_filter }}'.
+    {% else %}
+        Track the status and remarks of your customer submissions.
+    {% endif %}
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="mb-4 d-flex justify-content-end">
+    <a href="{% url 'add_customer' %}" class="btn btn-modern-gold px-4">
+        <i class="bi bi-plus-lg me-2"></i> New Application
+    </a>
+</div>
+
+<div class="modern-card p-0">
+    <div class="table-responsive">
+        <table class="table modern-table mb-0">
+        <thead>
+            <tr>
+                <th class="ps-4">S.No</th>
+                <th>Customer Name</th>
+                <th>Mobile Number</th>
+                <th class="text-center">Status</th>
+                <th>Admin Remark</th>
+                <th>Date Submitted</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td class="ps-4 text-muted">{{ forloop.counter }}</td>
+                <td><span class="fw-bold text-dark">{{ customer.customer_name }}</span></td>
+                <td>{{ customer.mobile_number }}</td>
+                <td class="text-center">
+                    {% if customer.status == 'Pending' %}
+                        <span class="badge-modern bg-warning bg-opacity-10 text-dark">
+                            <i class="bi bi-clock-history"></i> Pending
+                        </span>
+                    {% elif customer.status == 'Approved' %}
+                        <span class="badge-modern bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-check-circle-fill"></i> Approved
+                        </span>
+                    {% elif customer.status == 'Confirmed' %}
+                        <span class="badge-modern bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-patch-check-fill"></i> Confirmed
+                        </span>
+                    {% elif customer.status == 'Rejected' %}
+                        <span class="badge-modern bg-danger bg-opacity-10 text-danger">
+                            <i class="bi bi-x-circle-fill"></i> Rejected
+                        </span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if customer.remark %}
+                        <div class="text-danger small d-flex align-items-center">
+                            <i class="bi bi-exclamation-circle-fill me-1"></i>
+                            {{ customer.remark }}
+                        </div>
+                    {% else %}
+                        <span class="text-muted small">No remarks</span>
+                    {% endif %}
+                </td>
+                <td><span class="text-muted small">{{ customer.created_at|date:"d M, Y" }}</span></td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="6" class="text-center py-5">
+                    <div class="text-muted">
+                        <i class="bi bi-inbox display-4 mb-3 d-block opacity-25"></i>
+                        <p>No customers submitted yet.</p>
+                        <a href="{% url 'add_customer' %}" class="btn btn-sm btn-outline-primary rounded-pill px-4">Start Now</a>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+{% endblock %}
+

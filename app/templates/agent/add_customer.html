@@ -1,0 +1,109 @@
+{% extends 'agent/agent_dashboard.html' %}
+{% load static %}
+
+{% block dashboard_title %}Add Customer{% endblock %}
+{% block panel_name %}AGENT PANEL{% endblock %}
+{% block sidebar_class %}bg-dark{% endblock %}
+
+{% block sidebar_nav %}
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_dashboard' %}active{% endif %}" href="{% url 'agent_dashboard' %}">
+    <i class="bi bi-grid-fill"></i> Dashboard
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'add_customer' %}active{% endif %}" href="{% url 'add_customer' %}">
+    <i class="bi bi-person-plus-fill"></i> Add Customer
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_customer_list' %}active{% endif %}" href="{% url 'agent_customer_list' %}">
+    <i class="bi bi-people-fill"></i> My Customers
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_commission' %}active{% endif %}" href="{% url 'agent_commission' %}">
+    <i class="bi bi-wallet2-fill"></i> My Earnings
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_extra_commission' %}active{% endif %}" href="{% url 'agent_extra_commission' %}">
+    <i class="bi bi-stars-fill"></i> My Extra Commission
+</a>
+{% endblock %}
+
+{% block page_title %}New Customer Application{% endblock %}
+{% block page_subtitle %}Fill in the details and upload documents for solar installation.{% endblock %}
+
+{% block dashboard_content %}
+<div class="modern-card">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h5 class="fw-bold mb-0">Application Form</h5>
+        <a href="{% url 'agent_customer_list' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+            <i class="bi bi-arrow-left me-1"></i> Back to List
+        </a>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row g-4">
+            <!-- Basic Info -->
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Customer Name</label>
+                <input type="text" name="customer_name" class="form-control rounded-4 py-2 bg-light border-0" placeholder="Enter Full Name" required>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Mobile (Linked with Aadhaar)</label>
+                <input type="text" name="mobile_number" class="form-control rounded-4 py-2 bg-light border-0" placeholder="10 Digit Mobile Number" required>
+            </div>
+            <div class="col-12">
+                <label class="form-label fw-bold">Physical Address</label>
+                <textarea name="address" class="form-control rounded-4 bg-light border-0" rows="3" placeholder="Full Address of Installation Site" required></textarea>
+            </div>
+
+            <div class="col-12 mt-5">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="icon-gold p-2 rounded-3 me-3">
+                        <i class="bi bi-file-earmark-arrow-up-fill"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0 text-dark">Document Uploads <small class="text-muted fw-normal" style="font-size: 0.75rem;">(PDF, JPG, PNG | Max 5MB)</small></h5>
+                </div>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Aadhaar Card</label>
+                        <input type="file" name="aadhaar_card" class="form-control rounded-3" accept=".pdf,.jpg,.jpeg,.png" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">PAN Card</label>
+                        <input type="file" name="pan_card" class="form-control rounded-3" accept=".pdf,.jpg,.jpeg,.png" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Latest Electricity Bill</label>
+                        <input type="file" name="electricity_bill" class="form-control rounded-3" accept=".pdf,.jpg,.jpeg,.png" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Bank Passbook / Cheque</label>
+                        <input type="file" name="bank_document" class="form-control rounded-3" accept=".pdf,.jpg,.jpeg,.png" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">House Roof Photos</label>
+                        <input type="file" name="roof_photo" class="form-control rounded-3" accept=".pdf,.jpg,.jpeg,.png" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Electricity Meter Photo</label>
+                        <input type="file" name="meter_photo" class="form-control rounded-3" accept=".pdf,.jpg,.jpeg,.png" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Passport Size Photo</label>
+                        <input type="file" name="passport_photo" class="form-control rounded-3" accept=".pdf,.jpg,.jpeg,.png" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Property Tax / Ownership</label>
+                        <input type="file" name="ownership_proof" class="form-control rounded-3" accept=".pdf,.jpg,.jpeg,.png" required>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label small fw-bold">Vendor Quotation</label>
+                        <input type="file" name="vendor_quotation" class="form-control rounded-3" accept=".pdf,.jpg,.jpeg,.png" required>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 text-end border-top pt-4">
+            <button type="reset" class="btn btn-light px-4 py-2 me-2 rounded-4 fw-bold">Reset Form</button>
+            <button type="submit" class="btn btn-modern-gold px-5 py-2">Submit Application</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,110 @@
+{% extends 'agent/agent_dashboard.html' %}
+{% load static %}
+
+{% block dashboard_title %}My Extra Commission{% endblock %}
+
+{% block sidebar_nav %}
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_dashboard' %}active{% endif %}" href="{% url 'agent_dashboard' %}">
+    <i class="bi bi-grid-fill"></i> Dashboard
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'add_customer' %}active{% endif %}" href="{% url 'add_customer' %}">
+    <i class="bi bi-person-plus-fill"></i> Add Customer
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_customer_list' %}active{% endif %}" href="{% url 'agent_customer_list' %}">
+    <i class="bi bi-people-fill"></i> My Customers
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_commission' %}active{% endif %}" href="{% url 'agent_commission' %}">
+    <i class="bi bi-wallet2-fill"></i> My Earnings
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_extra_commission' %}active{% endif %}" href="{% url 'agent_extra_commission' %}">
+    <i class="bi bi-stars-fill"></i> My Extra Commission
+</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4 mb-5">
+    <div class="col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon icon-navy">
+                <i class="bi bi-check-all"></i>
+            </div>
+            <div>
+                <h6 class="text-muted small mb-1">Completed Apps</h6>
+                <h3 class="fw-bold mb-0 text-dark">{{ confirmed_count }}</h3>
+                <small class="text-muted extra-small">Applications Finalized</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon icon-gold">
+                <i class="bi bi-stars"></i>
+            </div>
+            <div>
+                <h6 class="text-muted small mb-1">Extra Received</h6>
+                <h3 class="fw-bold mb-0 text-dark">₹{{ total_paid_extra }}</h3>
+                <small class="text-muted extra-small">Bonus Payouts from Admin</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modern-card p-0">
+    <div class="p-4 border-bottom d-flex align-items-center">
+        <div class="icon-gold p-2 rounded-3 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+            <i class="bi bi-list-ul"></i>
+        </div>
+        <h5 class="fw-bold mb-0 text-dark">Extra Payout History</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table modern-table mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-4">Date</th>
+                    <th class="text-center">Amount</th>
+                    <th class="text-center">Method</th>
+                    <th class="text-center">UTR Number</th>
+                    <th>Remark</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="fw-bold text-dark">{{ payment.date|date:"d M, Y" }}</div>
+                        <small class="text-muted" style="font-size: 0.7rem;">{{ payment.date|time:"h:i A" }}</small>
+                    </td>
+                    <td class="text-center fw-bold text-dark">₹{{ payment.amount }}</td>
+                    <td class="text-center">
+                        <span class="badge bg-light text-dark border px-3 py-2" style="border-radius: 8px;">{{ payment.method }}</span>
+                    </td>
+                    <td class="text-center">
+                        {% if payment.utr_number %}
+                            <code class="text-primary fw-bold" style="font-size: 0.8rem; background: #f1f5f9; padding: 4px 8px; border-radius: 6px;">{{ payment.utr_number }}</code>
+                        {% else %}
+                            <span class="text-muted small">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if payment.remark %}
+                            <span class="small text-muted">{{ payment.remark }}</span>
+                        {% else %}
+                            <span class="text-muted small">No remark</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <div class="icon-navy p-4 rounded-circle d-inline-block mb-3">
+                            <i class="bi bi-stars fs-1 opacity-25"></i>
+                        </div>
+                        <h5 class="text-muted">No extra payouts recorded yet</h5>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,389 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{% block dashboard_title %}Agent Dashboard{% endblock %} - Solar{% endblock %}</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+:root {
+    --sidebar-width: 280px;
+    --deep-navy: #0f172a;
+    --secondary-navy: #1e293b;
+    --gold-primary: #f59e0b;
+    --gold-hover: #d97706;
+    --bg-light: #f8fafc;
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--bg-light);
+    color: var(--text-main);
+}
+
+/* Sidebar Styling */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background: var(--deep-navy);
+    z-index: 1050;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 10px 0 30px rgba(0,0,0,0.1);
+}
+
+.sidebar-logo-container {
+    padding: 2.5rem 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.sidebar-nav {
+    padding: 1.5rem 1.25rem;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.nav-link {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    color: #94a3b8;
+    border-radius: 14px;
+    margin-bottom: 0.75rem;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.nav-link i {
+    font-size: 1.4rem;
+    margin-right: 1.2rem;
+}
+
+.nav-link:hover {
+    background: rgba(255,255,255,0.05);
+    color: var(--gold-primary);
+}
+
+.nav-link.active {
+    background: var(--gold-primary);
+    color: var(--deep-navy) !important;
+    font-weight: 700;
+    box-shadow: 0 10px 20px rgba(245, 158, 11, 0.2);
+}
+
+.nav-link.active i {
+    color: var(--deep-navy);
+}
+
+/* Logout button at bottom */
+.logout-container {
+    padding: 1.5rem 1.25rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+.logout-link {
+    display: flex;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    color: #ef4444;
+    border-radius: 14px;
+    background: rgba(239, 68, 68, 0.1);
+    transition: var(--transition);
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.logout-link:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* Main Content Area */
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: 2.5rem;
+    min-height: 100vh;
+}
+
+/* Modern Topbar */
+.topbar {
+    background: white;
+    padding: 1.25rem 2rem;
+    border-radius: 20px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 2.5rem;
+    border: 1px solid #f1f5f9;
+}
+
+/* Modern Cards */
+.modern-card {
+    background: white;
+    border: none;
+    border-radius: 24px;
+    box-shadow: var(--card-shadow);
+    padding: 2rem;
+    transition: var(--transition);
+    border: 1px solid #f1f5f9;
+}
+
+.modern-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card {
+    background: white;
+    border-radius: 24px;
+    padding: 1.75rem;
+    display: flex;
+    align-items: center;
+    box-shadow: var(--card-shadow);
+    transition: var(--transition);
+    border: 1px solid #f1f5f9;
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    margin-right: 1.25rem;
+}
+
+/* Custom Colors for Stat Icons */
+.icon-gold { background: rgba(245, 158, 11, 0.1); color: var(--gold-primary); }
+.icon-navy { background: rgba(15, 23, 42, 0.05); color: var(--deep-navy); }
+.icon-success { background: rgba(16, 185, 129, 0.1); color: #10b981; }
+
+/* Buttons */
+.btn-modern-gold {
+    background: var(--gold-primary);
+    color: var(--deep-navy);
+    padding: 0.8rem 1.8rem;
+    border-radius: 14px;
+    font-weight: 700;
+    border: none;
+    box-shadow: 0 10px 15px rgba(245, 158, 11, 0.15);
+    transition: var(--transition);
+}
+
+.btn-modern-gold:hover {
+    background: var(--gold-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 15px 25px rgba(245, 158, 11, 0.25);
+}
+
+/* Badge Styles */
+.badge-modern {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    transition: var(--transition);
+}
+
+.badge-modern i {
+    font-size: 0.9rem;
+}
+
+/* SweetAlert Modern Styling */
+.modern-swal-popup {
+    border-radius: 32px !important;
+    padding: 2rem !important;
+}
+.modern-swal-title {
+    font-family: 'Inter', sans-serif !important;
+    font-weight: 800 !important;
+    color: var(--deep-navy) !important;
+}
+.modern-swal-confirm {
+    border-radius: 14px !important;
+    padding: 0.8rem 2rem !important;
+    font-weight: 700 !important;
+}
+.modern-swal-cancel {
+    border-radius: 14px !important;
+    padding: 0.8rem 2rem !important;
+    font-weight: 700 !important;
+}
+
+/* Rejected Card Pulse Animation */
+@keyframes pulse-red {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+    70% { transform: scale(1.02); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+}
+
+.animate-rejected {
+    animation: pulse-red 2s infinite;
+    border: 1px solid rgba(239, 68, 68, 0.3) !important;
+}
+
+@media (max-width: 991px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.show { transform: translateX(0); }
+    .main-content { margin-left: 0; padding: 1.5rem; }
+}
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-logo-container">
+            <img src="{% static 'images/logo.png' %}" alt="Suryaghar Logo" class="img-fluid mb-3" style="max-height: 75px;">
+            <div class="text-center">
+                <span class="badge bg-warning text-dark fw-bold px-3 py-2" style="border-radius: 8px; font-size: 0.75rem; letter-spacing: 1px;">
+                    AGENT PORTAL
+                </span>
+            </div>
+        </div>
+        
+        <div class="sidebar-nav">
+            {% block sidebar_nav %}
+            <a class="nav-link {% if request.resolver_match.url_name == 'agent_dashboard' %}active{% endif %}" href="{% url 'agent_dashboard' %}">
+                <i class="bi bi-grid-fill"></i> Dashboard
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'add_customer' %}active{% endif %}" href="{% url 'add_customer' %}">
+                <i class="bi bi-person-plus-fill"></i> Add Customer
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'agent_customer_list' %}active{% endif %}" href="{% url 'agent_customer_list' %}">
+                <i class="bi bi-people-fill"></i> My Customers
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'agent_commission' %}active{% endif %}" href="{% url 'agent_commission' %}">
+                <i class="bi bi-wallet2-fill"></i> My Earnings
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'agent_extra_commission' %}active{% endif %}" href="{% url 'agent_extra_commission' %}">
+                <i class="bi bi-stars-fill"></i> My Extra Commission
+            </a>
+            {% endblock %}
+        </div>
+
+        <div class="logout-container">
+            <a href="{% url 'logout' %}" class="logout-link">
+                <i class="bi bi-box-arrow-right"></i>
+                <span>Logout Session</span>
+            </a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Messages -->
+        <div class="container-fluid p-0">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert">
+                        <i class="bi bi-info-circle-fill me-2"></i> {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+
+        <!-- Topbar -->
+        <div class="topbar d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn btn-light d-lg-none" id="openSidebar">
+                    <i class="bi bi-list fs-4"></i>
+                </button>
+                <div>
+                    <h5 class="fw-bold mb-0 text-dark">{% block page_title %}{% block welcome_msg %}Welcome Back!{% endblock %}{% endblock %}</h5>
+                    <p class="text-muted small mb-0">{% block page_subtitle %}{% block sub_welcome %}Have a productive day, {{ request.session.agent_name|default:"Agent" }}{% endblock %}{% endblock %}</p>
+                </div>
+            </div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="text-end d-none d-sm-block">
+                    <div class="fw-bold small text-dark">{{ request.session.agent_name|default:"Field Agent" }}</div>
+                    <div class="text-muted extra-small" style="font-size: 0.7rem;">{% now "l, d M Y" %}</div>
+                </div>
+                <div class="icon-gold p-2 rounded-3">
+                    <i class="bi bi-person-badge-fill fs-4"></i>
+                </div>
+            </div>
+        </div>
+
+        {% block dashboard_content %}{% endblock %}
+        {% block content %}{% endblock %}
+    </div>
+
+    <!-- Bootstrap 5 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        const sidebar = document.getElementById('sidebar');
+        const openBtn = document.getElementById('openSidebar');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('show');
+        }
+
+        if (openBtn) {
+            openBtn.addEventListener('click', toggleSidebar);
+        }
+
+        // Global SweetAlert2 Delete Confirmation
+        document.addEventListener('DOMContentLoaded', function() {
+            const deleteButtons = document.querySelectorAll('.delete-confirm');
+            deleteButtons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const url = this.getAttribute('href');
+                    const message = this.getAttribute('data-message') || 'Are you sure you want to delete this?';
+                    
+                    Swal.fire({
+                        title: 'Are you sure?',
+                        text: message,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonColor: '#ef4444',
+                        cancelButtonColor: '#64748b',
+                        confirmButtonText: 'Yes, delete it!',
+                        cancelButtonText: 'Cancel',
+                        background: '#ffffff',
+                        borderRadius: '24px',
+                        customClass: {
+                            popup: 'modern-swal-popup',
+                            title: 'modern-swal-title',
+                            confirmButton: 'modern-swal-confirm',
+                            cancelButton: 'modern-swal-cancel'
+                        }
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            window.location.href = url;
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

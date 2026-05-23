@@ -1,0 +1,113 @@
+{% extends 'admin/admin_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Work for Vendor{% endblock %}
+{% block page_subtitle %}Assign confirmed solar projects to installation vendors.{% endblock %}
+
+{% block dashboard_content %}
+<div class="modern-card p-0">
+    <div class="p-3 border-bottom">
+        <h5 class="fw-bold mb-0 text-dark">Unassigned Customers</h5>
+    </div>
+    <div class="table-responsive">
+        <table class="table modern-table mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-4">Customer Name</th>
+                    <th>Phone & Address</th>
+                    <th>Agent</th>
+                    <th class="text-center">Current Vendor</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+                {% if not customer.vendor %}
+                <tr>
+                    <td class="ps-4 py-3">
+                        <div class="fw-bold text-dark">{{ customer.customer_name }}</div>
+                        <div class="text-muted small">Confirmed on: {{ customer.created_at|date:"d M Y" }}</div>
+                    </td>
+                    <td>
+                        <div class="small mb-1"><i class="bi bi-telephone me-2 text-muted"></i>{{ customer.mobile_number }}</div>
+                        <div class="small"><i class="bi bi-geo-alt me-2 text-muted"></i>{{ customer.address|truncatechars:30 }}</div>
+                    </td>
+                    <td>
+                        <div class="small fw-bold text-navy">{{ customer.agent.name }}</div>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-3 py-2">
+                            <i class="bi bi-clock-history me-1"></i> NOT ASSIGNED
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <button type="button" class="btn btn-sm btn-modern-gold px-3" data-bs-toggle="modal" data-bs-target="#assignModal{{ customer.id }}">
+                            <i class="bi bi-send-fill me-1"></i> Send to Vendor
+                        </button>
+                    </td>
+                </tr>
+                {% endif %}
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <div class="icon-navy p-4 rounded-circle d-inline-block mb-3">
+                            <i class="bi bi-tools fs-1 opacity-25"></i>
+                        </div>
+                        <h5 class="text-muted">No confirmed projects available for assignment</h5>
+                        <p class="small text-muted">Only customers with "Confirmed" status appear here.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modals moved outside the table container to prevent clipping and layout issues -->
+{% for customer in customers %}
+{% if not customer.vendor %}
+<div class="modal fade" id="assignModal{{ customer.id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark">Assign Project to Vendor</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'assign_vendor' customer.id %}" method="POST">
+                {% csrf_token %}
+                <div class="modal-body py-4">
+                    <div class="p-3 bg-light rounded-4 mb-4 border">
+                        <div class="small text-muted mb-1">Project for:</div>
+                        <div class="fw-bold text-navy fs-5">{{ customer.customer_name }}</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold small text-muted">Select Installation Vendor</label>
+                        <select name="vendor_id" class="form-select rounded-4 py-2 border-light bg-light shadow-sm" required>
+                            <option value="" disabled selected>Choose a vendor...</option>
+                            {% for vendor in vendors %}
+                                <option value="{{ vendor.id }}">
+                                    {{ vendor.company_name }} ({{ vendor.name }})
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label fw-bold small text-muted">Special Instructions / Remark</label>
+                        <textarea name="vendor_remark" class="form-control rounded-4 border-light bg-light shadow-sm" rows="3" placeholder="Enter instructions for the vendor..."></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-4 px-4 fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-modern-gold px-5 py-2">
+                        <i class="bi bi-check-circle-fill me-2"></i>Assign Project
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endblock %}

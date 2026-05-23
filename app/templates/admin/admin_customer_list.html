@@ -1,0 +1,77 @@
+{% extends 'admin/admin_dashboard.html' %}
+{% load static %}
+
+{% block dashboard_title %}Customer Summary{% endblock %}
+{% block panel_name %}ADMIN PANEL{% endblock %}
+
+{% block page_title %}Agent-wise Summary{% endblock %}
+{% block page_subtitle %}Overview of customer applications submitted by each agent.{% endblock %}
+
+{% block dashboard_content %}
+<div class="row">
+    <div class="col-12">
+        <div class="modern-card p-0">
+            <div class="table-responsive">
+                <table class="table modern-table mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Agent Name</th>
+                            <th class="text-center">Total Apps</th>
+                            <th class="text-center">Approved</th>
+                            <th class="text-center">Confirmed</th>
+                            <th class="text-center">Rejected</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for agent in agents %}
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-navy p-2 rounded-circle me-3">
+                                        <i class="bi bi-person-badge"></i>
+                                    </div>
+                                    <span class="fw-bold text-dark">{{ agent.name }}</span>
+                                </div>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge rounded-pill bg-light text-dark border px-3 py-2 fw-bold">{{ agent.total_cust }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-modern bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-3">
+                                    {{ agent.approved_cust }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-modern bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3">
+                                    {{ agent.confirmed_cust }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge-modern bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3">
+                                    {{ agent.rejected_cust }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <a href="{% url 'admin_agent_customers' agent.id %}" class="btn btn-modern-gold py-1 px-3" style="font-size: 0.85rem;">
+                                    <i class="bi bi-eye-fill me-1"></i> View Details
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div class="icon-navy p-4 rounded-circle d-inline-block mb-3">
+                                    <i class="bi bi-folder-x fs-1 opacity-25"></i>
+                                </div>
+                                <h5 class="text-muted">No customer data available yet</h5>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

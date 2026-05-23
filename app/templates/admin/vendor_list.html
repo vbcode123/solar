@@ -1,0 +1,100 @@
+{% extends 'admin/admin_dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Vendor Directory{% endblock %}
+{% block page_subtitle %}Manage and monitor all registered solar installation vendors.{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4 mb-4">
+    <div class="col-12 text-end">
+        <a href="{% url 'add_vendor' %}" class="btn btn-modern-gold px-4">
+            <i class="bi bi-person-plus-fill me-2"></i>Add New Vendor
+        </a>
+    </div>
+</div>
+
+<div class="modern-card p-0">
+    <div class="table-responsive">
+        <table class="table modern-table mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-4">Vendor Code</th>
+                    <th>Profile</th>
+                    <th>Vendor & Company</th>
+                    <th>Contact Info</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Manage</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for vendor in vendors %}
+                <tr>
+                    <td class="ps-4 py-3">
+                        <span class="badge bg-navy bg-opacity-10 text-primary fw-bold" style="font-size: 0.85rem;">{{ vendor.vendor_code }}</span>
+                    </td>
+                    <td class="py-3">
+                        {% if vendor.profile_photo %}
+                            <img src="{{ vendor.profile_photo.url }}" class="rounded-circle shadow-sm" width="50" height="50" style="object-fit: cover; border: 2px solid #f1f5f9;">
+                        {% else %}
+                            <div class="icon-gold rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                <i class="bi bi-building fs-4"></i>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="fw-bold text-dark">{{ vendor.name }}</div>
+                        <div class="badge bg-light text-primary small px-2 py-1" style="font-size: 0.7rem; border-radius: 6px;">{{ vendor.company_name }}</div>
+                    </td>
+                    <td>
+                        <div class="small mb-1"><i class="bi bi-telephone me-2 text-muted"></i>{{ vendor.phone }}</div>
+                        <div class="small"><i class="bi bi-geo-alt me-2 text-muted"></i>{{ vendor.address|truncatechars:30 }}</div>
+                    </td>
+                    <td class="text-center">
+                        {% if vendor.is_active %}
+                            <span class="badge-modern bg-success bg-opacity-10 text-success border border-success border-opacity-25">
+                                <i class="bi bi-patch-check-fill"></i> ACTIVE
+                            </span>
+                        {% else %}
+                            <span class="badge-modern bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25">
+                                <i class="bi bi-lock-fill"></i> BLOCKED
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex gap-2 justify-content-center">
+                            <a href="{% url 'admin_chat' vendor.id %}" class="btn btn-sm btn-modern-gold rounded-3 px-3 py-2 position-relative" title="Chat with Vendor">
+                                <i class="bi bi-chat-dots-fill"></i>
+                                {% if vendor.unread_count > 0 %}
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 10px; padding: 3px 6px;">
+                                        {{ vendor.unread_count }}
+                                    </span>
+                                {% endif %}
+                            </a>
+                            <a href="{% url 'view_vendor' vendor.id %}" class="btn btn-sm btn-light rounded-3 px-3 py-2 border" title="View Profile">
+                                <i class="bi bi-eye-fill text-primary"></i>
+                            </a>
+                            <a href="{% url 'edit_vendor' vendor.id %}" class="btn btn-sm btn-light rounded-3 px-3 py-2 border" title="Edit">
+                                <i class="bi bi-pencil-square text-dark"></i>
+                            </a>
+                            <a href="{% url 'delete_vendor' vendor.id %}" class="btn btn-sm btn-light rounded-3 px-3 py-2 border delete-confirm" data-message="Are you sure you want to delete this vendor?" title="Delete">
+                                <i class="bi bi-trash3-fill text-danger"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5">
+                        <div class="icon-navy p-4 rounded-circle d-inline-block mb-3">
+                            <i class="bi bi-building-slash fs-1 opacity-25"></i>
+                        </div>
+                        <h5 class="text-muted">No vendors registered yet</h5>
+                        <a href="{% url 'add_vendor' %}" class="btn btn-link text-gold fw-bold text-decoration-none mt-2">Register first vendor</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

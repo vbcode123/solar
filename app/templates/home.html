@@ -1,0 +1,746 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suryaghar | Solar CRM — Intelligent Energy Sales Platform</title>
+    
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <!-- Google Fonts (Modern) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --deep-space: #0a0f1c;
+            --galactic-blue: #0f172f;
+            --electric-gold: #f5b042;
+            --solar-flare: #ffb347;
+            --cyan-glow: #2dd4bf;
+            --pearl-white: #f8fafc;
+            --slate-mist: #eef2ff;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(245, 176, 66, 0.2);
+            --transition-smooth: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            --shadow-glow: 0 20px 35px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(245, 176, 66, 0.1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #ffffff;
+            color: #111827;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        h1, h2, h3, h4, .navbar-brand, .btn, .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        /* custom scroll */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172f;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--electric-gold);
+            border-radius: 10px;
+        }
+
+        /* modern background blobs */
+        .bg-blur-blob {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        .blob-1, .blob-2 {
+            position: absolute;
+            filter: blur(90px);
+            opacity: 0.4;
+            border-radius: 50%;
+        }
+        .blob-1 {
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, #f5b04220, #f5b04205);
+            top: -150px;
+            left: -150px;
+        }
+        .blob-2 {
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, #2dd4bf15, #0f172f20);
+            bottom: -200px;
+            right: -150px;
+        }
+
+        /* navbar */
+        .navbar {
+            background: rgba(15, 23, 47, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 0.9rem 0;
+            transition: var(--transition-smooth);
+            border-bottom: 1px solid rgba(245, 176, 66, 0.3);
+        }
+        .navbar.scrolled {
+            background: rgba(10, 15, 28, 0.95);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        .navbar-brand span {
+            background: linear-gradient(135deg, #fff 30%, var(--electric-gold) 80%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            font-weight: 700;
+            font-size: 1.6rem;
+        }
+        .nav-link {
+            color: #e2e8f0 !important;
+            font-weight: 500;
+            margin: 0 0.2rem;
+            transition: var(--transition-smooth);
+            border-radius: 40px;
+        }
+        .nav-link:hover {
+            color: var(--electric-gold) !important;
+            background: rgba(245, 176, 66, 0.1);
+            transform: translateY(-2px);
+        }
+        .btn-gold {
+            background: linear-gradient(105deg, var(--electric-gold), #f39c12);
+            border: none;
+            color: #0a0f1c;
+            font-weight: 700;
+            padding: 0.7rem 2rem;
+            border-radius: 40px;
+            box-shadow: 0 8px 20px rgba(245, 176, 66, 0.3);
+            transition: var(--transition-smooth);
+        }
+        .btn-gold:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(245, 176, 66, 0.4);
+            background: linear-gradient(105deg, #ffb347, var(--electric-gold));
+            color: #000;
+        }
+        .btn-outline-cyber {
+            background: transparent;
+            border: 1.5px solid var(--electric-gold);
+            color: var(--electric-gold);
+            border-radius: 40px;
+            padding: 0.6rem 1.8rem;
+            font-weight: 600;
+            transition: var(--transition-smooth);
+        }
+        .btn-outline-cyber:hover {
+            background: var(--electric-gold);
+            color: #0a0f1c;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 12px rgba(245, 176, 66, 0.3);
+        }
+
+        /* hero */
+        .hero {
+            padding: 140px 0 100px;
+            position: relative;
+        }
+        .hero-title {
+            font-size: clamp(2.6rem, 6vw, 4.6rem);
+            line-height: 1.15;
+            background: linear-gradient(to right, #ffffff, #f5b042);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .hero-glow {
+            text-shadow: 0 0 15px rgba(245, 176, 66, 0.4);
+        }
+        .floating-sun {
+            animation: float 6s ease-in-out infinite;
+            filter: drop-shadow(0 20px 25px rgba(0,0,0,0.2));
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* stats section modern */
+        .stats-bar {
+            background: linear-gradient(125deg, #0a0f1c 0%, #111827 100%);
+            margin: 2rem 0;
+            border-radius: 60px;
+            padding: 3rem 2rem;
+            box-shadow: var(--shadow-glow);
+            border: 1px solid rgba(245, 176, 66, 0.2);
+        }
+        .stat-card h2 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #f5b042, #fcd34d);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        /* process cards */
+        .process-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(0px);
+            border-radius: 32px;
+            padding: 2rem 1.8rem;
+            transition: var(--transition-smooth);
+            border: 1px solid #e9eef3;
+            box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.02);
+        }
+        .process-card:hover {
+            transform: translateY(-12px);
+            border-color: var(--electric-gold);
+            box-shadow: 0 25px 40px -12px rgba(0, 0, 0, 0.2);
+        }
+        .process-number {
+            background: linear-gradient(145deg, #0f172f, #1e293b);
+            color: var(--electric-gold);
+            width: 56px;
+            height: 56px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            border-radius: 20px;
+        }
+
+        /* new feature cards grid */
+        .feature-card {
+            background: white;
+            border-radius: 2rem;
+            padding: 2rem 1.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(0,0,0,0.03);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.02);
+        }
+        .feature-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(120deg, #f5b04220, #f5b04210);
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 24px;
+            color: var(--electric-gold);
+        }
+        .feature-card:hover {
+            border-color: var(--electric-gold);
+            transform: scale(1.02);
+        }
+
+        /* testimonial style */
+        .testimonial-card {
+            background: #ffffff;
+            border-radius: 32px;
+            padding: 2rem;
+            box-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.05);
+            transition: var(--transition-smooth);
+            border: 1px solid #f1f5f9;
+        }
+        .testimonial-card i {
+            color: var(--electric-gold);
+            font-size: 2.2rem;
+        }
+
+        /* CTA */
+        .cta-section {
+            background: linear-gradient(125deg, #0f172f, #0c1124);
+            border-radius: 48px;
+            padding: 4rem 2rem;
+            margin: 3rem 0;
+        }
+
+        /* scroll reveal animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(45px);
+            transition: opacity 0.9s cubic-bezier(0.2, 0.9, 0.3, 1.1), transform 0.8s ease;
+        }
+        .reveal.revealed {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-40px);
+            transition: all 0.8s ease;
+        }
+        .reveal-left.revealed {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        /* --- Footer --- */
+        footer {
+            background: #070b14;
+            color: #ffffff; /* Pure white for better visibility */
+            padding: 80px 0 30px;
+            border-top: 1px solid rgba(245, 176, 66, 0.2);
+        }
+
+        .footer-heading {
+            color: var(--electric-gold) !important; /* Gold headers */
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+
+        .footer-links {
+            list-style: none;
+            padding: 0;
+        }
+
+        .footer-links li {
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .footer-links a, .footer-text {
+            color: #cbd5e1 !important; /* Light gray for readable text */
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            font-size: 0.95rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--electric-gold) !important;
+            padding-left: 8px;
+        }
+
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.1);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 10px;
+            color: white;
+            margin-right: 10px;
+            transition: var(--transition-smooth);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .social-links a:hover {
+            background: var(--electric-gold);
+            color: var(--deep-space);
+            transform: translateY(-5px);
+            border-color: transparent;
+        }
+
+        .footer-bottom {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            text-align: center;
+            color: #94a3b8;
+        }
+        @media (max-width: 768px) {
+            .stats-bar { border-radius: 32px; }
+            .hero { padding-top: 100px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="bg-blur-blob">
+    <div class="blob-1"></div>
+    <div class="blob-2"></div>
+</div>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg fixed-top" id="mainNav">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+            <img src="{% static 'images/logo.png' %}" alt="Logo" height="48" class="me-2">
+            <span>SURYAGHAR</span>
+        </a>
+        <button class="navbar-toggler border-0 text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+            <i class="bi bi-list fs-1"></i>
+        </button>
+        <div class="collapse navbar-collapse" id="navMenu">
+            <ul class="navbar-nav ms-auto align-items-center gap-2">
+                <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="#process">Process</a></li>
+                <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+                <li class="nav-item"><a class="nav-link" href="#testimonials">Voices</a></li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item ms-lg-2"><a class="btn btn-gold py-2 px-4" href="{% url 'admin_dashboard' %}">Dashboard</a></li>
+                {% elif request.session.agent_id %}
+                    <li class="nav-item ms-lg-2"><a class="btn btn-gold py-2 px-4" href="{% url 'agent_dashboard' %}">Agent Portal</a></li>
+                {% elif request.session.vendor_id %}
+                    <li class="nav-item ms-lg-2"><a class="btn btn-gold py-2 px-4" href="{% url 'vendor_dashboard' %}">Vendor Portal</a></li>
+                {% else %}
+                    <li class="nav-item"><a class="nav-link" href="{% url 'agent_login' %}">Agent Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'vendor_login' %}">Vendor Login</a></li>
+                    <li class="nav-item ms-lg-2"><a class="btn-gold btn" href="{% url 'admin_login' %}">Admin Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6 reveal-left">
+                <div class="badge bg-dark text-warning px-3 py-2 rounded-pill mb-4 border border-warning">
+                    <i class="bi bi-brightness-alt-high me-2"></i> AI powered Solar CRM
+                </div>
+                <h1 class="hero-title">Illuminating <span class="text-warning">Clean Energy</span> Sales with Intelligence.</h1>
+                <p class="lead text-muted mt-4">Empower field agents with real-time lead tracking, document sync, and automated commission payouts — all in one radiant platform.</p>
+                <div class="d-flex flex-wrap gap-3 mt-4">
+                    <a href="{% url 'agent_login' %}" class="btn btn-gold"><i class="bi bi-cloud-sun me-2"></i>Agent Portal</a>
+                    <a href="{% url 'vendor_login' %}" class="btn btn-outline-cyber"><i class="bi bi-building me-2"></i>Vendor Portal</a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center reveal">
+                <img src="{% static 'images/logo.png' %}" alt="Solar Power" class="img-fluid floating-sun" style="max-height: 320px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats with counter -->
+<section class="container my-4">
+    <div class="stats-bar reveal">
+        <div class="row text-center g-4">
+            <div class="col-md-4 stat-card">
+                <h2><span class="counter" data-target="580">0</span>+</h2>
+                <p class="text-uppercase fw-semibold text-light-emphasis">Active Agents</p>
+            </div>
+            <div class="col-md-4 stat-card">
+                <h2><span class="counter" data-target="12450">0</span>+</h2>
+                <p class="text-uppercase fw-semibold">Solar Homes</p>
+            </div>
+            <div class="col-md-4 stat-card">
+                <h2><span class="counter" data-target="78.5">0</span>Cr+</h2>
+                <p class="text-uppercase fw-semibold">Commissions Earned</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Process Section -->
+<section class="py-5" id="process">
+    <div class="container">
+        <div class="section-title text-center mb-5 reveal">
+            <h2 class="fw-bold display-6">How <span class="text-warning">Suryaghar</span> Works</h2>
+            <p class="text-muted fs-5">Streamlined workflow for agents & admins</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6 reveal">
+                <div class="process-card text-center text-md-start">
+                    <div class="process-number mb-4">01</div>
+                    <h5 class="fw-bold">Agent Onboarding</h5>
+                    <p class="text-muted">Secure login, custom dashboard & daily field sync.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 reveal delay-1">
+                <div class="process-card">
+                    <div class="process-number mb-4">02</div>
+                    <h5 class="fw-bold">Smart Data Entry</h5>
+                    <p class="text-muted">Upload customer docs & site images instantly.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 reveal delay-2">
+                <div class="process-card">
+                    <div class="process-number mb-4">03</div>
+                    <h5 class="fw-bold">Admin Verification</h5>
+                    <p class="text-muted">Digital KYC & approval in 24h.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 reveal delay-3">
+                <div class="process-card">
+                    <div class="process-number mb-4">04</div>
+                    <h5 class="fw-bold">Instant Payouts</h5>
+                    <p class="text-muted">Track & withdraw performance incentives.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- New modern FEATURES section -->
+<section class="py-4" id="features">
+    <div class="container">
+        <div class="text-center reveal mb-5">
+            <h2 class="display-6 fw-bold">Next-gen <span class="text-warning">Solar CRM</span> Capabilities</h2>
+            <p class="text-muted fs-5">Everything your solar business needs to scale</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6 col-lg-3 reveal">
+                <div class="feature-card text-center">
+                    <div class="feature-icon mx-auto mb-3"><i class="bi bi-diagram-3-fill"></i></div>
+                    <h5 class="fw-bold">Lead Funnel</h5>
+                    <p class="small text-muted">Assign, track and convert leads with visual pipeline.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 reveal delay-1">
+                <div class="feature-card text-center">
+                    <div class="feature-icon mx-auto mb-3"><i class="bi bi-file-earmark-richtext"></i></div>
+                    <h5 class="fw-bold">Paperless Docs</h5>
+                    <p class="small text-muted">Cloud uploads, e-sign & real-time verification.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 reveal delay-2">
+                <div class="feature-card text-center">
+                    <div class="feature-icon mx-auto mb-3"><i class="bi bi-graph-up"></i></div>
+                    <h5 class="fw-bold">Analytics Hub</h5>
+                    <p class="small text-muted">Agent performance & commission insights dashboard.</p>
+                </div>
+            </div>
+            <div class="col-md-6 col-lg-3 reveal delay-3">
+                <div class="feature-card text-center">
+                    <div class="feature-icon mx-auto mb-3"><i class="bi bi-shield-check"></i></div>
+                    <h5 class="fw-bold">Bank-grade Security</h5>
+                    <p class="small text-muted">End-to-end encrypted data & role-based access.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials section -->
+<section class="py-5" id="testimonials">
+    <div class="container">
+        <div class="text-center reveal mb-5">
+            <h2 class="display-6 fw-bold">Trusted by <span class="text-warning">Solar Champions</span></h2>
+            <p class="text-muted">Real stories from field</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 reveal">
+                <div class="testimonial-card h-100">
+                    <i class="bi bi-chat-quote-fill mb-3 d-block"></i>
+                    <p class="fst-italic">“Suryaghar changed the way I manage field leads. Real-time updates and commission transparency are game changers.”</p>
+                    <div class="mt-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-person-circle fs-3"></i>
+                        <div><strong>Rakesh Sharma</strong><br><small class="text-muted">Top Agent, Jaipur</small></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal delay-1">
+                <div class="testimonial-card h-100">
+                    <i class="bi bi-chat-quote-fill mb-3 d-block"></i>
+                    <p class="fst-italic">“Document verification used to take weeks, now it’s streamlined. Best solar CRM for admins and agencies.”</p>
+                    <div class="mt-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-person-badge fs-3"></i>
+                        <div><strong>Neha Verma</strong><br><small class="text-muted">Admin, RenewX Solar</small></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 reveal delay-2">
+                <div class="testimonial-card h-100">
+                    <i class="bi bi-chat-quote-fill mb-3 d-block"></i>
+                    <p class="fst-italic">“Payment cycles are faster and the mobile-friendly dashboard is amazing for on-site entries.”</p>
+                    <div class="mt-3 d-flex align-items-center gap-2">
+                        <i class="bi bi-sun-fill fs-3 text-warning"></i>
+                        <div><strong>Amit Nair</strong><br><small class="text-muted">Field Agent, Gujarat</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="container my-5">
+    <div class="cta-section text-center reveal">
+        <h2 class="text-white display-5 fw-semibold">Ready to supercharge your solar operations?</h2>
+        <p class="text-white-50 fs-5 mt-3">Join 500+ agents & admins who trust Suryaghar for seamless solar CRM.</p>
+        <div class="mt-4 d-flex gap-3 justify-content-center flex-wrap">
+            <a href="{% url 'agent_login' %}" class="btn btn-gold px-5 py-3"><i class="bi bi-rocket-takeoff me-2"></i>Agent Portal</a>
+            <a href="{% url 'vendor_login' %}" class="btn btn-outline-light px-5 py-3"><i class="bi bi-building me-2"></i>Vendor Portal</a>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer class="mt-5">
+    <div class="container">
+        <div class="row g-5">
+            <div class="col-lg-4 col-md-12">
+                <div class="d-flex align-items-center mb-4">
+                    <img src="{% static 'images/logo.png' %}" alt="Logo" height="55" class="me-3">
+                    <span class="text-white fw-bold fs-3 tracking-tight">SURYAGHAR</span>
+                </div>
+                <p class="footer-text mb-4 pe-lg-4">
+                    Suryaghar is India's premier Solar CRM platform, dedicated to empowering field agents and streamlining the transition to clean, sustainable energy.
+                </p>
+                <div class="social-links">
+                    <a href="#"><i class="bi bi-facebook"></i></a>
+                    <a href="#"><i class="bi bi-twitter-x"></i></a>
+                    <a href="#"><i class="bi bi-linkedin"></i></a>
+                    <a href="#"><i class="bi bi-instagram"></i></a>
+                </div>
+            </div>
+            
+            <div class="col-lg-2 col-md-4">
+                <h5 class="footer-heading">Company</h5>
+                <ul class="footer-links">
+                    <li><a href="{% url 'home' %}">Home</a></li>
+                    <li><a href="#features">Features</a></li>
+                    <li><a href="#process">Our Process</a></li>
+                    <li><a href="#">About Us</a></li>
+                </ul>
+            </div>
+            
+            <div class="col-lg-2 col-md-4">
+                <h5 class="footer-heading">Portals</h5>
+                <ul class="footer-links">
+                    <li><a href="{% url 'admin_login' %}">Admin Access</a></li>
+                    <li><a href="{% url 'agent_login' %}">Agent Portal</a></li>
+                    <li><a href="{% url 'vendor_login' %}">Vendor Portal</a></li>
+                    <li><a href="#">Partner Program</a></li>
+                    <li><a href="#">Help Center</a></li>
+                </ul>
+            </div>
+            
+            <div class="col-lg-4 col-md-4">
+                <h5 class="footer-heading">Get In Touch</h5>
+                <ul class="footer-links flex-column align-items-start">
+                    <li class="footer-text mb-3">
+                        <i class="bi bi-geo-alt-fill text-gold me-3"></i>
+                        Solar Hub, Green Energy Park, Sector 62, India
+                    </li>
+                    <li class="footer-text mb-3">
+                        <i class="bi bi-envelope-fill text-gold me-3"></i>
+                        contact@suryaghar.com
+                    </li>
+                    <li class="footer-text">
+                        <i class="bi bi-telephone-fill text-gold me-3"></i>
+                        +91 98765 43210
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="footer-bottom">
+            <p class="mb-0">
+                &copy; 2026 <span class="text-white fw-bold">Suryaghar</span>. All rights reserved. 
+                <span class="mx-2 d-none d-sm-inline">|</span> 
+                Built with <i class="bi bi-heart-fill text-danger mx-1"></i> for a Greener Tomorrow.
+            </p>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    (function() {
+        // Scroll animations + Counter
+        const revealElements = document.querySelectorAll('.reveal, .reveal-left');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('revealed');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.2, rootMargin: "0px 0px -40px 0px" });
+        
+        revealElements.forEach(el => observer.observe(el));
+        
+        // Navbar background change
+        window.addEventListener('scroll', function() {
+            const navbar = document.getElementById('mainNav');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+        
+        // Counter up for stats
+        const counters = document.querySelectorAll('.counter');
+        const statSection = document.querySelector('.stats-bar');
+        let counted = false;
+        
+        const startCounters = () => {
+            if (counted) return;
+            counters.forEach(counter => {
+                const target = parseFloat(counter.getAttribute('data-target'));
+                const isFloat = target % 1 !== 0;
+                let current = 0;
+                const increment = target / 55;
+                const updateCount = () => {
+                    if (current < target) {
+                        current += increment;
+                        if (isFloat) counter.innerText = current.toFixed(1);
+                        else counter.innerText = Math.ceil(current);
+                        requestAnimationFrame(updateCount);
+                    } else {
+                        counter.innerText = isFloat ? target.toFixed(1) : target;
+                    }
+                };
+                updateCount();
+            });
+            counted = true;
+        };
+        
+        const statObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !counted) {
+                    startCounters();
+                    statObserver.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.5 });
+        
+        if (statSection) statObserver.observe(statSection);
+        
+        // add hover parallax on process cards
+        const cards = document.querySelectorAll('.process-card');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                card.style.transform = `perspective(1000px) rotateX(${(y - rect.height/2)/30}deg) rotateY(${(x - rect.width/2)/30}deg) translateY(-8px)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0px)';
+            });
+        });
+        
+        // smooth anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href === "#" || href === "") return;
+                const target = document.querySelector(href);
+                if (target) {
+                    e.preventDefault();
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    })();
+</script>
+</body>
+</html>

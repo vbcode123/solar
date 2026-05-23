@@ -1,0 +1,189 @@
+{% extends 'vendor/dashboard.html' %}
+{% load static %}
+
+{% block page_title %}Job Details{% endblock %}
+{% block page_subtitle %}Customer: {{ customer.customer_name }}{% endblock %}
+
+{% block vendor_profile_section %}{% endblock %}
+{% block main_content_col %}col-lg-12{% endblock %}
+
+{% block vendor_main_content %}
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <a href="{% url 'vendor_installation_jobs' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+        <i class="bi bi-arrow-left me-1"></i> Back to Jobs
+    </a>
+    <a href="{% url 'vendor_download_all_documents' customer.id %}" class="btn btn-modern-gold">
+        <i class="bi bi-download me-1"></i> Download All Documents
+    </a>
+</div>
+
+<!-- Customer Info Card -->
+<div class="modern-card mb-4">
+    <div class="row g-4 align-items-center">
+        <div class="col-lg-8">
+            <h4 class="fw-bold text-dark mb-1">{{ customer.customer_name }}</h4>
+            <div class="text-muted mb-3">
+                <i class="bi bi-telephone me-2"></i>{{ customer.mobile_number }}
+                <span class="mx-2">•</span>
+                <i class="bi bi-geo-alt me-2"></i>{{ customer.address|truncatechars:40 }}
+            </div>
+            {% if customer.vendor_remark %}
+            <div class="p-3 bg-light rounded-4 border">
+                <div class="small text-muted mb-1"><i class="bi bi-chat-quote me-1"></i>Admin Instructions:</div>
+                <div class="fw-medium text-dark">{{ customer.vendor_remark }}</div>
+            </div>
+            {% endif %}
+        </div>
+        <div class="col-lg-4 text-end">
+            <div class="d-inline-block">
+                {% if customer.vendor_status == 'Pending' %}
+                    <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary border-opacity-25 px-4 py-2">
+                        <i class="bi bi-clock-history me-1"></i> PENDING
+                    </span>
+                {% elif customer.vendor_status == 'Approve' %}
+                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 px-4 py-2">
+                        <i class="bi bi-check-circle me-1"></i> APPROVE
+                    </span>
+                {% elif customer.vendor_status == 'Complete' %}
+                    <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-4 py-2">
+                        <i class="bi bi-check-circle-fill me-1"></i> COMPLETE
+                    </span>
+                {% elif customer.vendor_status == 'Hold' %}
+                    <span class="badge bg-warning bg-opacity-10 text-warning border border-warning border-opacity-25 px-4 py-2">
+                        <i class="bi bi-pause-circle me-1"></i> HOLD
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Aadhaar Card -->
+    <div class="col-md-4">
+        <div class="modern-card h-100 d-flex flex-column">
+            <h6 class="fw-bold mb-3 text-primary">Aadhaar Card</h6>
+            <div class="bg-light rounded-4 p-4 text-center mb-3 flex-grow-1 d-flex align-items-center justify-content-center">
+                <i class="bi bi-file-earmark-person display-4 text-info"></i>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{{ customer.aadhaar_card.url }}" target="_blank" class="btn btn-modern-gold">
+                    <i class="bi bi-eye me-1"></i> View / Open
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- PAN Card -->
+    <div class="col-md-4">
+        <div class="modern-card h-100 d-flex flex-column">
+            <h6 class="fw-bold mb-3 text-primary">PAN Card</h6>
+            <div class="bg-light rounded-4 p-4 text-center mb-3 flex-grow-1 d-flex align-items-center justify-content-center">
+                <i class="bi bi-card-text display-4 text-warning"></i>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{{ customer.pan_card.url }}" target="_blank" class="btn btn-modern-gold">
+                    <i class="bi bi-eye me-1"></i> View / Open
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Electricity Bill -->
+    <div class="col-md-4">
+        <div class="modern-card h-100 d-flex flex-column">
+            <h6 class="fw-bold mb-3 text-primary">Electricity Bill</h6>
+            <div class="bg-light rounded-4 p-4 text-center mb-3 flex-grow-1 d-flex align-items-center justify-content-center">
+                <i class="bi bi-lightning-charge display-4 text-success"></i>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{{ customer.electricity_bill.url }}" target="_blank" class="btn btn-modern-gold">
+                    <i class="bi bi-eye me-1"></i> View / Open
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Bank Document -->
+    <div class="col-md-4">
+        <div class="modern-card h-100 d-flex flex-column">
+            <h6 class="fw-bold mb-3 text-primary">Bank Passbook / Cheque</h6>
+            <div class="bg-light rounded-4 p-4 text-center mb-3 flex-grow-1 d-flex align-items-center justify-content-center">
+                <i class="bi bi-bank display-4 text-secondary"></i>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{{ customer.bank_document.url }}" target="_blank" class="btn btn-modern-gold">
+                    <i class="bi bi-eye me-1"></i> View / Open
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Roof Photos -->
+    <div class="col-md-4">
+        <div class="modern-card h-100 d-flex flex-column">
+            <h6 class="fw-bold mb-3 text-primary">Roof Photos</h6>
+            <div class="bg-light rounded-4 p-4 text-center mb-3 flex-grow-1 d-flex align-items-center justify-content-center">
+                <i class="bi bi-house display-4 text-primary"></i>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{{ customer.roof_photo.url }}" target="_blank" class="btn btn-modern-gold">
+                    <i class="bi bi-eye me-1"></i> View / Open
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Meter Photo -->
+    <div class="col-md-4">
+        <div class="modern-card h-100 d-flex flex-column">
+            <h6 class="fw-bold mb-3 text-primary">Meter Photo</h6>
+            <div class="bg-light rounded-4 p-4 text-center mb-3 flex-grow-1 d-flex align-items-center justify-content-center">
+                <i class="bi bi-speedometer display-4 text-dark"></i>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{{ customer.meter_photo.url }}" target="_blank" class="btn btn-modern-gold">
+                    <i class="bi bi-eye me-1"></i> View / Open
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Passport Photo -->
+    <div class="col-md-4">
+        <div class="modern-card h-100 d-flex flex-column">
+            <h6 class="fw-bold mb-3 text-primary">Passport Size Photo</h6>
+            <div class="bg-light rounded-4 p-4 text-center mb-3 flex-grow-1 d-flex align-items-center justify-content-center">
+                <i class="bi bi-person-bounding-box display-4 text-info"></i>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{{ customer.passport_photo.url }}" target="_blank" class="btn btn-modern-gold">
+                    <i class="bi bi-eye me-1"></i> View / Open
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Ownership Proof -->
+    <div class="col-md-4">
+        <div class="modern-card h-100 d-flex flex-column">
+            <h6 class="fw-bold mb-3 text-primary">Ownership Proof</h6>
+            <div class="bg-light rounded-4 p-4 text-center mb-3 flex-grow-1 d-flex align-items-center justify-content-center">
+                <i class="bi bi-file-earmark-check display-4 text-success"></i>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{{ customer.ownership_proof.url }}" target="_blank" class="btn btn-modern-gold">
+                    <i class="bi bi-eye me-1"></i> View / Open
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Vendor Quotation -->
+    <div class="col-md-4">
+        <div class="modern-card h-100 d-flex flex-column">
+            <h6 class="fw-bold mb-3 text-primary">Vendor Quotation</h6>
+            <div class="bg-light rounded-4 p-4 text-center mb-3 flex-grow-1 d-flex align-items-center justify-content-center">
+                <i class="bi bi-file-earmark-medical display-4 text-danger"></i>
+            </div>
+            <div class="d-grid gap-2">
+                <a href="{{ customer.vendor_quotation.url }}" target="_blank" class="btn btn-modern-gold">
+                    <i class="bi bi-eye me-1"></i> View / Open
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,161 @@
+{% extends 'admin/admin_dashboard.html' %}
+{% load static %}
+
+{% block dashboard_title %}Admin Dashboard{% endblock %}
+{% block panel_name %}ADMIN PANEL{% endblock %}
+
+{% block welcome_msg %}System Dashboard{% endblock %}
+{% block sub_welcome %}Overview of your solar project performance.{% endblock %}
+
+{% block dashboard_content %}
+<!-- Stats Section -->
+<div class="row g-4 mb-5 row-cols-1 row-cols-md-3 row-cols-xl-5">
+    <div class="col">
+        <a href="{% url 'agent_list' %}" class="text-decoration-none">
+            <div class="stat-card h-100">
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary">
+                    <i class="bi bi-people-fill"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted small mb-1">Total Agents</h6>
+                    <h3 class="fw-bold mb-0 text-dark">{{ total_agents }}</h3>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'all_customers_list' %}" class="text-decoration-none">
+            <div class="stat-card h-100">
+                <div class="stat-icon bg-purple bg-opacity-10 text-purple" style="color: #a855f7 !important;">
+                    <i class="bi bi-file-earmark-text-fill"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted small mb-1">Total Apps</h6>
+                    <h3 class="fw-bold mb-0 text-dark">{{ total_customers }}</h3>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'all_customers_list' %}?status=Approved" class="text-decoration-none">
+            <div class="stat-card h-100">
+                <div class="stat-icon bg-primary bg-opacity-10 text-primary" style="color: #0ea5e9 !important; background: rgba(14, 165, 233, 0.1) !important;">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted small mb-1">Approved</h6>
+                    <h3 class="fw-bold mb-0 text-dark">{{ approved_customers }}</h3>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'all_customers_list' %}?status=Pending" class="text-decoration-none">
+            <div class="stat-card h-100">
+                <div class="stat-icon bg-warning bg-opacity-10 text-warning">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted small mb-1">Pending</h6>
+                    <h3 class="fw-bold mb-0 text-dark">{{ pending_customers }}</h3>
+                </div>
+            </div>
+        </a>
+    </div>
+    <div class="col">
+        <a href="{% url 'all_customers_list' %}?status=Confirmed" class="text-decoration-none">
+            <div class="stat-card h-100">
+                <div class="stat-icon bg-success bg-opacity-10 text-success">
+                    <i class="bi bi-patch-check-fill"></i>
+                </div>
+                <div>
+                    <h6 class="text-muted small mb-1">Confirmed</h6>
+                    <h3 class="fw-bold mb-0 text-dark">{{ confirmed_customers }}</h3>
+                </div>
+            </div>
+        </a>
+    </div>
+</div>
+
+<div class="row g-4">
+    <!-- Day-wise Report -->
+    <div class="col-lg-8">
+        <div class="modern-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div class="d-flex align-items-center">
+                    <div class="bg-primary bg-opacity-10 p-2 rounded-3 text-primary me-3">
+                        <i class="bi bi-bar-chart-fill"></i>
+                    </div>
+                    <h5 class="fw-bold mb-0">Daily Application Trend</h5>
+                </div>
+                <span class="badge bg-light text-dark px-3 py-2 rounded-pill">Last 7 Days</span>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light bg-opacity-50">
+                        <tr>
+                            <th class="border-0 rounded-start ps-4 py-3">Date</th>
+                            <th class="border-0 text-center py-3">New Apps</th>
+                            <th class="border-0 text-end pe-4 py-3">Growth</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in day_wise_report %}
+                        <tr>
+                            <td class="ps-4 py-3">
+                                <span class="fw-semibold text-dark">{{ report.date|date:"l, d M" }}</span>
+                                {% if forloop.first %}
+                                <span class="badge bg-success bg-opacity-10 text-success ms-2 small">Latest</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-center py-3">
+                                <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary px-3 py-2 fw-bold" style="font-size: 0.9rem;">
+                                    {{ report.count }}
+                                </span>
+                            </td>
+                            <td class="text-end pe-4 py-3">
+                                {% if report.count > 0 %}
+                                    <span class="text-success small fw-bold"><i class="bi bi-arrow-up-right me-1"></i>Active</span>
+                                {% else %}
+                                    <span class="text-muted small">No Data</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Management -->
+    <div class="col-lg-4">
+        <div class="modern-card">
+            <div class="d-flex align-items-center mb-4">
+                <div class="bg-warning bg-opacity-10 p-2 rounded-3 text-warning me-3">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                </div>
+                <h5 class="fw-bold mb-0">Quick Actions</h5>
+            </div>
+            <div class="d-grid gap-3">
+                <a href="{% url 'add_agent' %}" class="btn btn-modern btn-modern-primary d-flex align-items-center justify-content-between">
+                    <span><i class="bi bi-person-plus-fill me-2"></i> Add Agent</span>
+                    <i class="bi bi-chevron-right small"></i>
+                </a>
+                <a href="{% url 'agent_list' %}" class="btn btn-light btn-modern text-dark border d-flex align-items-center justify-content-between">
+                    <span><i class="bi bi-people-fill me-2 text-primary"></i> Agent List</span>
+                    <i class="bi bi-chevron-right small text-muted"></i>
+                </a>
+                <a href="{% url 'admin_customer_summary' %}" class="btn btn-light btn-modern text-dark border d-flex align-items-center justify-content-between">
+                    <span><i class="bi bi-folder-fill me-2 text-warning"></i> Customer List</span>
+                    <i class="bi bi-chevron-right small text-muted"></i>
+                </a>
+                <a href="{% url 'agent_commissions' %}" class="btn btn-light btn-modern text-dark border d-flex align-items-center justify-content-between">
+                    <span><i class="bi bi-wallet2 me-2 text-success"></i> Regular Payouts</span>
+                    <i class="bi bi-chevron-right small text-muted"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,221 @@
+{% extends 'admin/admin_dashboard.html' %}
+
+{% block title %}Chat with {{ vendor.name }}{% endblock %}
+
+{% block dashboard_title %}Chat with {{ vendor.name }}{% endblock %}
+
+{% block content %}
+<style>
+    .chat-container {
+        height: calc(100vh - 200px);
+        display: flex;
+        flex-direction: column;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+    .chat-header {
+        padding: 20px 30px;
+        background: white;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+    .chat-back-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        background: #f3f4f6;
+        border: none;
+        border-radius: 12px;
+        color: #1f2937;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+    }
+    .chat-back-btn:hover {
+        background: #e5e7eb;
+    }
+    .chat-messages {
+        flex: 1;
+        overflow-y: auto;
+        padding: 30px;
+        background: #f8fafc;
+    }
+    .message-input-area {
+        padding: 20px 30px;
+        background: white;
+        border-top: 1px solid #e5e7eb;
+    }
+    .message {
+        margin-bottom: 20px;
+        max-width: 70%;
+    }
+    .message.sent {
+        margin-left: auto;
+        text-align: right;
+    }
+    .message.received {
+        margin-right: auto;
+        text-align: left;
+    }
+    .message-bubble {
+        display: inline-block;
+        padding: 12px 18px;
+        border-radius: 18px;
+        text-align: left;
+    }
+    .message.sent .message-bubble {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        color: white;
+        border-bottom-right-radius: 5px;
+    }
+    .message.received .message-bubble {
+        background: white;
+        color: #1f2937;
+        border-bottom-left-radius: 5px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+    .message-image {
+        max-width: 300px;
+        border-radius: 12px;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+    .message-time {
+        font-size: 11px;
+        opacity: 0.7;
+        margin-top: 5px;
+    }
+</style>
+
+<div class="chat-container">
+    <!-- Chat Header -->
+    <div class="chat-header">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <a href="{% url 'admin_chat_list' %}" class="chat-back-btn">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Back
+            </a>
+            <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 20px; overflow: hidden;">
+                {% if vendor.profile_photo %}
+                    <img src="{{ vendor.profile_photo.url }}" style="width: 100%; height: 100%; object-fit: cover;">
+                {% else %}
+                    {{ vendor.name|first|upper }}
+                {% endif %}
+            </div>
+            <div>
+                <div style="font-weight: 700; color: #1f2937; font-size: 18px;">{{ vendor.name }}</div>
+                <div style="font-size: 13px; color: #6b7280;">{{ vendor.company_name }}</div>
+                <div style="font-size: 12px; color: #10b981; display: flex; align-items: center; gap: 5px; margin-top: 2px;">
+                    <span style="width: 8px; height: 8px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
+                    {% if vendor.last_seen %}
+                        Last seen: {{ vendor.last_seen|date:"d M H:i" }}
+                    {% else %}
+                        Online
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="chat-messages" id="chatMessages">
+        {% for msg in messages %}
+            <div class="message {% if msg.sender == 'Admin' %}sent{% else %}received{% endif %}">
+                <div class="message-bubble">
+                    {% if msg.message %}
+                        <div>{{ msg.message }}</div>
+                    {% endif %}
+                    {% if msg.image %}
+                        <img src="{{ msg.image.url }}" class="message-image" onclick="window.open('{{ msg.image.url }}')">
+                    {% endif %}
+                </div>
+                <div class="message-time">{{ msg.created_at|date:"d M H:i" }}</div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Input Area -->
+    <div class="message-input-area">
+        <form id="chatForm" enctype="multipart/form-data">
+            <div style="display: flex; gap: 15px; align-items: flex-end;">
+                <input type="file" id="imageInput" name="image" accept="image/*" style="display: none;">
+                <button type="button" onclick="document.getElementById('imageInput').click()" style="padding: 12px 16px; background: #f3f4f6; border: none; border-radius: 12px; cursor: pointer; transition: all 0.3s;">
+                    <svg width="20" height="20" fill="none" stroke="#6b7280" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                </button>
+                <input type="text" id="messageInput" name="message" placeholder="Type a message..." style="flex: 1; padding: 14px 20px; border: 2px solid #e5e7eb; border-radius: 14px; font-size: 15px; outline: none; transition: all 0.3s;">
+                <button type="submit" style="padding: 14px 30px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; border-radius: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                    Send
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Scroll to bottom on load
+    const chatMessages = document.getElementById('chatMessages');
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Chat form submission
+    document.getElementById('chatForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        formData.append('vendor_id', {{ vendor.id }});
+        
+        fetch('{% url "send_chat_message" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Add the new message to chat
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'message sent';
+                messageDiv.innerHTML = `
+                    <div class="message-bubble">
+                        ${data.message ? `<div>${data.message}</div>` : ''}
+                        ${data.image_url ? `<img src="${data.image_url}" class="message-image" onclick="window.open('${data.image_url}')">` : ''}
+                    </div>
+                    <div class="message-time">${data.created_at}</div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Clear the form
+                document.getElementById('messageInput').value = '';
+                document.getElementById('imageInput').value = '';
+            }
+        });
+    });
+
+    // Function to get CSRF token
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

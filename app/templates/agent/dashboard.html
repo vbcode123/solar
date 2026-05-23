@@ -1,0 +1,176 @@
+{% extends 'agent/agent_dashboard.html' %}
+{% load static %}
+
+{% block dashboard_title %}Agent Dashboard{% endblock %}
+{% block panel_name %}AGENT PANEL{% endblock %}
+{% block sidebar_class %}bg-white{% endblock %}
+
+{% block sidebar_nav %}
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_dashboard' %}active{% endif %}" href="{% url 'agent_dashboard' %}">
+    <i class="bi bi-grid-fill"></i> Dashboard
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'add_customer' %}active{% endif %}" href="{% url 'add_customer' %}">
+    <i class="bi bi-person-plus-fill"></i> Add Customer
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_customer_list' %}active{% endif %}" href="{% url 'agent_customer_list' %}">
+    <i class="bi bi-people-fill"></i> My Customers
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_commission' %}active{% endif %}" href="{% url 'agent_commission' %}">
+    <i class="bi bi-wallet2-fill"></i> My Earnings
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_extra_commission' %}active{% endif %}" href="{% url 'agent_extra_commission' %}">
+    <i class="bi bi-stars-fill"></i> My Extra Commission
+</a>
+{% endblock %}
+
+{% block welcome_msg %}Welcome back, {{ agent.name }}!{% endblock %}
+{% block sub_welcome %}Here is your performance overview for today.{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+    <!-- Profile Section -->
+    <div class="col-lg-4">
+        <div class="modern-card text-center h-100">
+            <div class="position-relative mb-4">
+                {% if agent.profile_photo %}
+                    <img src="{{ agent.profile_photo.url }}" class="rounded-circle shadow-sm" width="120" height="120" style="object-fit: cover; border: 4px solid #f1f5f9;">
+                {% else %}
+                    <div class="icon-gold rounded-circle mx-auto d-flex align-items-center justify-content-center shadow-sm" style="width: 120px; height: 120px; border: 4px solid #f1f5f9;">
+                        <i class="bi bi-person-fill display-4"></i>
+                    </div>
+                {% endif %}
+                <span class="position-absolute bottom-0 end-50 translate-middle-x badge rounded-pill bg-success border border-2 border-white p-2">
+                    <span class="visually-hidden">Online</span>
+                </span>
+            </div>
+            <h4 class="fw-bold mb-1 text-dark">{{ agent.name }}</h4>
+            <p class="text-muted small mb-4">Suryaghar Agent</p>
+            
+            <div class="text-start px-2">
+                <div class="p-3 bg-light rounded-4 mb-3 border">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-envelope text-gold me-2"></i>
+                        <span class="small text-muted text-truncate">{{ agent.email }}</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="bi bi-telephone text-gold me-2"></i>
+                        <span class="small text-muted">{{ agent.phone }}</span>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-geo-alt text-gold me-2"></i>
+                        <span class="small text-muted text-truncate">{{ agent.address|default:"No address set" }}</span>
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between align-items-center px-2">
+                    <span class="small text-muted">Joined</span>
+                    <span class="small fw-bold text-dark">{{ agent.created_at|date:"M Y" }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Stats & Actions -->
+    <div class="col-lg-8">
+        <div class="row g-4 mb-4">
+            <!-- Top Row: Total and Approved -->
+            <div class="col-md-6">
+                <a href="{% url 'agent_customer_list' %}" class="text-decoration-none">
+                    <div class="stat-card">
+                        <div class="stat-icon icon-navy">
+                            <i class="bi bi-people-fill"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted small mb-1">Total Apps</h6>
+                            <h3 class="fw-bold mb-0 text-dark">{{ total_apps }}</h3>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a href="{% url 'agent_customer_list' %}?status=Approved" class="text-decoration-none">
+                    <div class="stat-card">
+                        <div class="stat-icon icon-success">
+                            <i class="bi bi-check-circle-fill"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted small mb-1">Approved</h6>
+                            <h3 class="fw-bold mb-0 text-dark">{{ approved_count }}</h3>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Bottom Row: Completed and Rejected -->
+            <div class="col-md-6">
+                <a href="{% url 'agent_customer_list' %}?status=Confirmed" class="text-decoration-none">
+                    <div class="stat-card">
+                        <div class="stat-icon icon-gold">
+                            <i class="bi bi-patch-check-fill"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted small mb-1">Completed</h6>
+                            <h3 class="fw-bold mb-0 text-dark">{{ confirmed_count }}</h3>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-6">
+                <a href="{% url 'agent_customer_list' %}?status=Rejected" class="text-decoration-none">
+                    <div class="stat-card animate-rejected">
+                        <div class="stat-icon bg-danger bg-opacity-10 text-danger">
+                            <i class="bi bi-x-circle-fill"></i>
+                        </div>
+                        <div>
+                            <h6 class="text-muted small mb-1">Rejected</h6>
+                            <h3 class="fw-bold mb-0 text-dark">{{ rejected_count }}</h3>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-12">
+                <div class="stat-card" style="background: var(--deep-navy); border: none;">
+                    <div class="stat-icon icon-gold">
+                        <i class="bi bi-wallet2"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="text-white text-opacity-75 small mb-1">Total Combined Earnings</h6>
+                        <h3 class="fw-bold mb-0 text-white">₹{{ total_combined_earnings|stringformat:".2f" }}</h3>
+                    </div>
+                    <div class="text-end d-none d-sm-block">
+                        <div class="badge bg-white bg-opacity-10 text-white mb-1 d-block">Reg: ₹{{ regular_earnings }}</div>
+                        <div class="badge bg-warning bg-opacity-10 text-warning d-block">Extra: ₹{{ extra_earnings }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modern-card">
+            <h5 class="fw-bold mb-4 text-dark">Quick Actions</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <a href="{% url 'add_customer' %}" class="btn btn-modern-gold w-100 py-3">
+                        <i class="bi bi-plus-circle-fill me-2"></i> New Application
+                    </a>
+                </div>
+                <div class="col-md-6">
+                    <a href="{% url 'agent_customer_list' %}" class="btn btn-light border w-100 py-3 rounded-4 fw-bold">
+                        <i class="bi bi-list-stars me-2 text-gold"></i> Track Status
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="modern-card mt-4 border-0" style="background: rgba(245, 158, 11, 0.05); border: 1px dashed var(--gold-primary) !important;">
+            <div class="d-flex align-items-center">
+                <div class="me-3 icon-gold rounded-circle" style="width: 50px; height: 50px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-lightbulb-fill"></i>
+                </div>
+                <div>
+                    <h6 class="fw-bold text-dark mb-1">Agent Tip</h6>
+                    <p class="text-muted small mb-0">Ensure all Aadhaar card photos are clear for faster approval by the admin.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

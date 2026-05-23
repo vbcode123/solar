@@ -1,0 +1,171 @@
+{% extends 'admin/admin_dashboard.html' %}
+{% load static %}
+
+{% block dashboard_title %}All Customers{% endblock %}
+{% block panel_name %}ADMIN PANEL{% endblock %}
+
+{% block page_title %}
+    {% if status_filter %}{{ status_filter }} Customers{% else %}All Customer Applications{% endif %}
+{% endblock %}
+{% block page_subtitle %}
+    Total {{ customers|length }} application(s) found {% if status_filter %}with status '{{ status_filter }}'{% endif %}.
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="modern-card">
+            <div class="row align-items-center g-3">
+                <div class="col-md-8">
+                    <form method="GET" class="d-flex gap-3">
+                        <input type="hidden" name="status" value="{{ status_filter|default:'' }}">
+                        <div class="input-group flex-grow-1">
+                            <span class="input-group-text bg-light border-0 px-3"><i class="bi bi-search text-muted"></i></span>
+                            <input type="text" name="search" class="form-control border-0 bg-light py-2" placeholder="Search by name, phone or agent..." value="{{ search_query|default:'' }}">
+                        </div>
+                        <button class="btn btn-modern-gold px-4" type="submit">Search</button>
+                    </form>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="dropdown">
+                        <button class="btn btn-light border dropdown-toggle px-4 rounded-3" type="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-filter me-2"></i>Filter: {{ status_filter|default:"All" }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end rounded-3 shadow-sm border-0">
+                            <li><a class="dropdown-item" href="{% url 'all_customers_list' %}">All Status</a></li>
+                            <li><a class="dropdown-item" href="{% url 'all_customers_list' %}?status=Pending">Pending</a></li>
+                            <li><a class="dropdown-item" href="{% url 'all_customers_list' %}?status=Approved">Approved</a></li>
+                            <li><a class="dropdown-item" href="{% url 'all_customers_list' %}?status=Confirmed">Confirmed</a></li>
+                            <li><a class="dropdown-item" href="{% url 'all_customers_list' %}?status=Rejected">Rejected</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modern-card p-0">
+    <div class="table-responsive">
+        <table class="table modern-table mb-0">
+        <thead>
+            <tr>
+                <th class="ps-4">Customer Details</th>
+                <th>Agent</th>
+                <th class="text-center">Status</th>
+                <th>Date</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td class="ps-4 py-3">
+                    <div class="fw-bold text-dark">{{ customer.customer_name }}</div>
+                    <div class="small text-muted"><i class="bi bi-telephone me-1"></i>{{ customer.mobile_number }}</div>
+                </td>
+                <td>
+                    <div class="d-flex align-items-center">
+                        <div class="icon-navy p-2 rounded-circle me-2" style="width: 32px; height: 32px; font-size: 0.8rem; display: flex; align-items: center; justify-content: center;">
+                            <i class="bi bi-person-badge"></i>
+                        </div>
+                        <span class="small fw-bold text-dark">{{ customer.agent.name }}</span>
+                    </div>
+                </td>
+                <td class="text-center">
+                    {% if customer.status == 'Pending' %}
+                        <span class="badge-modern bg-warning bg-opacity-10 text-dark">
+                            <i class="bi bi-clock-history"></i> Pending
+                        </span>
+                    {% elif customer.status == 'Approved' %}
+                        <span class="badge-modern bg-primary bg-opacity-10 text-primary">
+                            <i class="bi bi-check-circle-fill"></i> Approved
+                        </span>
+                    {% elif customer.status == 'Confirmed' %}
+                        <span class="badge-modern bg-success bg-opacity-10 text-success">
+                            <i class="bi bi-patch-check-fill"></i> Confirmed
+                        </span>
+                    {% elif customer.status == 'Rejected' %}
+                        <span class="badge-modern bg-danger bg-opacity-10 text-danger">
+                            <i class="bi bi-x-circle-fill"></i> Rejected
+                        </span>
+                    {% endif %}
+                </td>
+                <td><span class="small text-muted">{{ customer.created_at|date:"d M, Y" }}</span></td>
+                <td class="text-center">
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="{% url 'customer_details' customer.id %}" class="btn btn-sm btn-light rounded-3 px-3 py-2 border" title="View Details">
+                            <i class="bi bi-eye-fill text-primary"></i>
+                        </a>
+                        
+                        {% if customer.status == 'Pending' %}
+                            <form method="POST" action="{% url 'update_status' customer.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="Approved">
+                                <button type="submit" class="btn btn-sm btn-outline-primary rounded-3 px-3 py-2" title="Approve">
+                                    <i class="bi bi-check-lg"></i>
+                                </button>
+                            </form>
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-3 px-3 py-2" data-bs-toggle="modal" data-bs-target="#rejectModal{{ customer.id }}" title="Reject">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        
+                        {% elif customer.status == 'Approved' %}
+                            <form method="POST" action="{% url 'update_status' customer.id %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="status" value="Confirmed">
+                                <button type="submit" class="btn btn-sm btn-success rounded-3 px-3 py-2" title="Confirm Installation">
+                                    <i class="bi bi-check-all"></i>
+                                </button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="text-center py-5">
+                    <div class="icon-navy p-4 rounded-circle d-inline-block mb-3">
+                        <i class="bi bi-folder-x fs-1 opacity-25"></i>
+                    </div>
+                    <h5 class="text-muted">No applications found with these criteria</h5>
+                    <a href="{% url 'all_customers_list' %}" class="btn btn-link text-gold fw-bold text-decoration-none mt-2">View all applications</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<!-- Rejection Modals -->
+{% for customer in customers %}
+    {% if customer.status == 'Pending' %}
+    <div class="modal fade" id="rejectModal{{ customer.id }}" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg rounded-4">
+                <div class="modal-header bg-danger text-white border-0 py-3">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Reject Application</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form method="POST" action="{% url 'update_status' customer.id %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="status" value="Rejected">
+                    <div class="modal-body p-4">
+                        <p class="mb-3">Customer: <span class="fw-bold text-dark">{{ customer.customer_name }}</span></p>
+                        <div class="mb-0">
+                            <label class="form-label fw-bold small">Reason for Rejection</label>
+                            <textarea name="remark" class="form-control rounded-3" rows="4" placeholder="Mention why this application is being rejected..." required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer border-0 p-3">
+                        <button type="button" class="btn btn-light px-4 rounded-4 fw-bold" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger px-4 rounded-4 fw-bold">Confirm Reject</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+{% endfor %}
+{% endblock %}

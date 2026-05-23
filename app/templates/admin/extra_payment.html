@@ -1,0 +1,106 @@
+{% extends 'admin/admin_dashboard.html' %}
+{% load static %}
+
+{% block dashboard_title %}Extra Payout{% endblock %}
+
+{% block page_title %}Extra Payout: {{ agent.name }}{% endblock %}
+{% block page_subtitle %}Record an extra commission payout for completed solar installations.{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="modern-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">Extra Payout Details</h5>
+                <span class="badge bg-indigo bg-opacity-10 text-indigo rounded-pill px-3">Agent ID: #{{ agent.id }}</span>
+            </div>
+            
+            <div class="row mb-5 text-center bg-light rounded-4 p-4 mx-0">
+                <div class="col-md-6 border-end border-white">
+                    <small class="text-muted d-block mb-1">Completed Apps</small>
+                    <h4 class="fw-bold mb-0">{{ confirmed_count }}</h4>
+                </div>
+                <div class="col-md-6">
+                    <small class="text-muted d-block mb-1 text-primary">Total Extra Paid</small>
+                    <h4 class="fw-bold mb-0 text-primary">₹{{ total_paid }}</h4>
+                </div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Extra Amount (₹)</label>
+                        <input type="number" step="0.01" name="amount" class="form-control rounded-3 py-2" placeholder="0.00" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Payment Method</label>
+                        <select name="method" id="payment_method" class="form-select rounded-3 py-2" required onchange="toggleUTR()">
+                            <option value="Cash">Cash</option>
+                            <option value="UPI">UPI</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12" id="utr_container" style="display: none;">
+                        <label class="form-label fw-bold">UTR / Transaction Number <span class="text-danger">*</span></label>
+                        <input type="text" name="utr_number" id="utr_input" class="form-control rounded-3 py-2" placeholder="Enter UPI Transaction Reference">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Extra Payout Remark</label>
+                        <input type="text" name="remark" class="form-control rounded-3 py-2" placeholder="e.g. Extra bonus for 10 confirmed sites">
+                    </div>
+                </div>
+                <div class="mt-5 text-end">
+                    <button type="submit" class="btn btn-modern btn-modern-primary px-5 py-2">
+                        <i class="bi bi-stars me-2"></i> Confirm Extra Payout
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="modern-card h-100">
+            <h5 class="fw-bold mb-4">Extra Payout History</h5>
+            <div class="overflow-auto" style="max-height: 500px;">
+                {% for payment in payments %}
+                <div class="p-3 border-bottom border-light">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="fw-bold text-primary">+ ₹{{ payment.amount }}</span>
+                        <span class="badge-modern bg-secondary bg-opacity-10 text-secondary" style="font-size: 0.65rem;">{{ payment.method }}</span>
+                    </div>
+                    {% if payment.remark %}
+                        <div class="text-dark extra-small mb-1" style="font-size: 0.8rem;">{{ payment.remark }}</div>
+                    {% endif %}
+                    {% if payment.utr_number %}
+                        <div class="text-indigo extra-small mb-1" style="font-size: 0.75rem;"><i class="bi bi-hash me-1"></i>UTR: {{ payment.utr_number }}</div>
+                    {% endif %}
+                    <div class="text-muted extra-small" style="font-size: 0.7rem;"><i class="bi bi-calendar3 me-1"></i>{{ payment.date|date:"d M, Y" }}</div>
+                </div>
+                {% empty %}
+                <div class="text-center py-5 text-muted">No extra payouts found.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleUTR() {
+        const method = document.getElementById('payment_method').value;
+        const utrContainer = document.getElementById('utr_container');
+        const utrInput = document.getElementById('utr_input');
+        
+        if (method === 'UPI') {
+            utrContainer.style.display = 'block';
+            utrInput.required = true;
+        } else {
+            utrContainer.style.display = 'none';
+            utrInput.required = false;
+            utrInput.value = '';
+        }
+    }
+    window.onload = toggleUTR;
+</script>
+{% endblock %}
