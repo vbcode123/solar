@@ -669,18 +669,26 @@ def agent_commission_view(request):
     
     # Regular stats (Approved + Confirmed counts for base commission)
     approved_count = Customer.objects.filter(agent=agent, status__in=['Approved', 'Confirmed']).count()
+    confirmed_count = Customer.objects.filter(agent=agent, status='Confirmed').count()
+    
     total_earnings = approved_count * 20
     total_paid_regular = Payment.objects.filter(agent=agent, payment_type='Regular').aggregate(Sum('amount'))['amount__sum'] or 0
+    total_paid_extra = Payment.objects.filter(agent=agent, payment_type='Extra').aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    total_paid = total_paid_regular + total_paid_extra
     balance = total_earnings - float(total_paid_regular)
     
-    # Get regular payment history
-    payments = Payment.objects.filter(agent=agent, payment_type='Regular').order_by('-date')
+    # Get all payment history (Regular + Extra)
+    payments = Payment.objects.filter(agent=agent).order_by('-date')
     
     return render(request, 'agent/agent_commission_list.html', {
         'agent': agent,
         'approved_count': approved_count,
+        'confirmed_count': confirmed_count,
         'total_earnings': total_earnings,
-        'total_paid': total_paid_regular,
+        'total_paid': total_paid,
+        'total_paid_regular': total_paid_regular,
+        'total_paid_extra': total_paid_extra,
         'balance': balance,
         'payments': payments
     })

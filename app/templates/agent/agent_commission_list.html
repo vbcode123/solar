@@ -43,7 +43,7 @@
             </div>
             <div>
                 <h6 class="text-muted small mb-1">Regular Received</h6>
-                <h3 class="fw-bold mb-0 text-dark">₹{{ total_paid }}</h3>
+                <h3 class="fw-bold mb-0 text-dark">₹{{ total_paid_regular }}</h3>
                 <small class="text-muted extra-small">Transferred</small>
             </div>
         </div>
@@ -57,6 +57,18 @@
                 <h6 class="text-muted small mb-1">Extra Received</h6>
                 <h3 class="fw-bold mb-0 text-dark">₹{{ total_paid_extra }}</h3>
                 <small class="text-muted extra-small">{{ confirmed_count }} Completed</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-xl-3 col-md-6">
+        <div class="stat-card">
+            <div class="stat-icon {% if balance < 0 %}icon-navy{% else %}icon-gold{% endif %}">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div>
+                <h6 class="text-muted small mb-1">Total Received</h6>
+                <h3 class="fw-bold mb-0 text-dark">₹{{ total_paid }}</h3>
+                <small class="text-muted extra-small">Reg + Extra</small>
             </div>
         </div>
     </div>

@@ -54,25 +54,17 @@
                 <td class="text-center">
                     <div class="d-flex gap-2 justify-content-center">
                         {% if customer.status == 'Pending' %}
-                            <form method="POST" action="{% url 'update_status' customer.id %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="status" value="Approved">
-                                <button type="submit" class="btn btn-sm btn-primary rounded-4 px-3 fw-bold">
-                                    <i class="bi bi-check-lg me-1"></i>Approve
-                                </button>
-                            </form>
+                            <button type="button" class="btn btn-sm btn-primary rounded-4 px-3 fw-bold" onclick="confirmCustomerStatus('{{ customer.id }}', 'Approved', 'Approve this customer?')">
+                                <i class="bi bi-check-lg me-1"></i>Approve
+                            </button>
                             <button type="button" class="btn btn-sm btn-danger rounded-4 px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#rejectModal{{ customer.id }}">
                                 <i class="bi bi-x-lg me-1"></i>Reject
                             </button>
                         
                         {% elif customer.status == 'Approved' %}
-                            <form method="POST" action="{% url 'update_status' customer.id %}">
-                                {% csrf_token %}
-                                <input type="hidden" name="status" value="Confirmed">
-                                <button type="submit" class="btn btn-sm btn-success rounded-4 px-4 fw-bold">
-                                    <i class="bi bi-patch-check-fill me-1"></i>Confirm
-                                </button>
-                            </form>
+                            <button type="button" class="btn btn-sm btn-success rounded-4 px-4 fw-bold" onclick="confirmCustomerStatus('{{ customer.id }}', 'Confirmed', 'Confirm installation for this customer?')">
+                                <i class="bi bi-patch-check-fill me-1"></i>Confirm
+                            </button>
                         
                         {% elif customer.status == 'Confirmed' %}
                             <span class="badge-modern bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3">
@@ -96,6 +88,14 @@
     </table>
     </div>
 </div>
+
+<!-- Hidden forms for customer status updates -->
+{% for customer in customers %}
+<form id="customerStatusForm{{ customer.id }}" action="{% url 'update_status' customer.id %}" method="POST" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="status" id="customerStatusValue{{ customer.id }}">
+</form>
+{% endfor %}
 
 <!-- Modals outside for stability -->
 {% for customer in customers %}
@@ -125,4 +125,24 @@
     </div>
 </div>
 {% endfor %}
+
+<script>
+function confirmCustomerStatus(customerId, status, message) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: message,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#f59e0b',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, ' + status + '!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('customerStatusValue' + customerId).value = status;
+            document.getElementById('customerStatusForm' + customerId).submit();
+        }
+    });
+}
+</script>
 {% endblock %}

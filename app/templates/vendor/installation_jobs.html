@@ -62,24 +62,16 @@
                     </td>
                     <td class="text-center">
                         {% if job.vendor_status == 'Pending' %}
-                            <form action="{% url 'update_vendor_status' job.id %}" method="POST" style="display: inline;">
-                                {% csrf_token %}
-                                <input type="hidden" name="vendor_status" value="Approve">
-                                <button type="submit" class="btn btn-sm btn-info px-3 me-1">
-                                    <i class="bi bi-check-circle me-1"></i> Approve
-                                </button>
-                            </form>
+                            <button type="button" class="btn btn-sm btn-info px-3 me-1" onclick="confirmStatusChange('{{ job.id }}', 'Approve', 'Approve this job?')">
+                                <i class="bi bi-check-circle me-1"></i> Approve
+                            </button>
                             <button type="button" class="btn btn-sm btn-warning px-3" data-bs-toggle="modal" data-bs-target="#holdModal{{ job.id }}">
                                 <i class="bi bi-pause-circle me-1"></i> Hold
                             </button>
                         {% elif job.vendor_status == 'Approve' %}
-                            <form action="{% url 'update_vendor_status' job.id %}" method="POST" style="display: inline;">
-                                {% csrf_token %}
-                                <input type="hidden" name="vendor_status" value="Complete">
-                                <button type="submit" class="btn btn-sm btn-success px-3 me-1">
-                                    <i class="bi bi-check-circle-fill me-1"></i> Complete
-                                </button>
-                            </form>
+                            <button type="button" class="btn btn-sm btn-success px-3 me-1" onclick="confirmStatusChange('{{ job.id }}', 'Complete', 'Mark this job as complete?')">
+                                <i class="bi bi-check-circle-fill me-1"></i> Complete
+                            </button>
                         {% elif job.vendor_status == 'Hold' %}
                             <span class="text-muted small"><i class="bi bi-pause-circle me-1"></i>On Hold</span>
                         {% elif job.vendor_status == 'Complete' %}
@@ -105,6 +97,14 @@
         </table>
     </div>
 </div>
+
+<!-- Hidden forms for status updates -->
+{% for job in jobs %}
+<form id="statusForm{{ job.id }}" action="{% url 'update_vendor_status' job.id %}" method="POST" style="display: none;">
+    {% csrf_token %}
+    <input type="hidden" name="vendor_status" id="statusValue{{ job.id }}">
+</form>
+{% endfor %}
 
 <!-- Hold Modals -->
 {% for job in jobs %}
@@ -141,4 +141,24 @@
 </div>
 {% endif %}
 {% endfor %}
+
+<script>
+function confirmStatusChange(jobId, status, message) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: message,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#f59e0b',
+        cancelButtonColor: '#6b7280',
+        confirmButtonText: 'Yes, ' + status + '!',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            document.getElementById('statusValue' + jobId).value = status;
+            document.getElementById('statusForm' + jobId).submit();
+        }
+    });
+}
+</script>
 {% endblock %}
