@@ -615,7 +615,7 @@ def update_vendor_status(request, cust_id):
             customer.status = new_status
                 
             # Set who updated the status
-            customer.status_updated_by_name = vendor.name
+            customer.status_updated_by_name = vendor.company_name
             customer.status_updated_by_role = "Vendor"
                 
             customer.save()
@@ -625,7 +625,7 @@ def update_vendor_status(request, cust_id):
             CustomerStatusHistory.objects.create(
                 customer=customer,
                 status=new_status,
-                changed_by_name=vendor.name,
+                changed_by_name=vendor.company_name,
                 changed_by_role="Vendor",
                 remark=remark
             )

@@ -69,6 +69,21 @@
                                 by {{ job.status_updated_by_name }}
                             </div>
                         {% endif %}
+                        {% if job.status_history.all %}
+                            <div class="mt-2">
+                                <small class="fw-bold text-muted">Status History:</small>
+                                <div class="mt-1">
+                                    {% for history in job.status_history.all %}
+                                        <div class="small text-muted">
+                                            <span class="fw-semibold">{{ history.status }}</span> by <span class="fw-semibold">{{ history.changed_by_name }}</span>
+                                            {% if history.remark %}
+                                                - {{ history.remark }}
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
                     </td>
                     <td class="text-center">
                         {% if job.status == 'Pending' %}
