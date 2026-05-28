@@ -62,14 +62,14 @@
                     </td>
                     <td class="text-center">
                         <div class="d-flex gap-2 justify-content-center">
-                            <a href="{% url 'admin_chat' vendor.id %}" class="btn btn-sm btn-modern-gold rounded-3 px-3 py-2 position-relative" title="Chat with Vendor">
+                            <!-- <a href="{% url 'admin_chat' vendor.id %}" class="btn btn-sm btn-modern-gold rounded-3 px-3 py-2 position-relative" title="Chat with Vendor">
                                 <i class="bi bi-chat-dots-fill"></i>
                                 {% if vendor.unread_count > 0 %}
                                     <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 10px; padding: 3px 6px;">
                                         {{ vendor.unread_count }}
                                     </span>
                                 {% endif %}
-                            </a>
+                            </a> -->
                             <a href="{% url 'view_vendor' vendor.id %}" class="btn btn-sm btn-light rounded-3 px-3 py-2 border" title="View Profile">
                                 <i class="bi bi-eye-fill text-primary"></i>
                             </a>

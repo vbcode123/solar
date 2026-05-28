@@ -1,37 +1,43 @@
-{% extends 'admin/admin_dashboard.html' %}
+{% extends 'vendor/dashboard.html' %}
 {% load static %}
 
-{% block dashboard_title %}Agent Payment{% endblock %}
-{% block panel_name %}ADMIN PANEL{% endblock %}
+{% block page_title %}Document Payment{% endblock %}
+{% block page_subtitle %}Process payment for {{ customer.customer_name }}.{% endblock %}
 
-{% block page_title %}Process Payment{% endblock %}
-{% block page_subtitle %}Record a new commission payout for {{ agent.name }}.{% endblock %}
+{% block vendor_profile_section %}{% endblock %}
+{% block main_content_col %}col-lg-12{% endblock %}
 
-{% block dashboard_content %}
+{% block vendor_main_content %}
 <div class="row g-4">
     <div class="col-md-8">
         <div class="modern-card">
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <h5 class="fw-bold mb-0">Payment Details</h5>
-                <span class="badge bg-indigo bg-opacity-10 text-indigo rounded-pill px-3">Agent ID: #{{ agent.id }}</span>
+                <a href="{% url 'vendor_document_payment' %}" class="btn btn-light rounded-3 px-3">
+                    <i class="bi bi-arrow-left me-1"></i> Back
+                </a>
             </div>
             
-            <div class="row mb-5 text-center bg-light rounded-4 p-4 mx-0">
-                <div class="col-md-4 border-end border-white">
-                    <small class="text-muted d-block mb-1">Total Earnings</small>
-                    <h4 class="fw-bold mb-0">₹{{ total_earnings }}</h4>
-                </div>
-                <div class="col-md-4 border-end border-white">
-                    <small class="text-muted d-block mb-1 text-success">Total Paid</small>
-                    <h4 class="fw-bold mb-0 text-success">₹{{ total_paid }}</h4>
-                </div>
-                <div class="col-md-4">
-                    <small class="text-muted d-block mb-1 {% if balance < 0 %}text-primary{% else %}text-danger{% endif %}">
-                        {% if balance < 0 %}Advance Paid{% else %}Remaining Balance{% endif %}
-                    </small>
-                    <h4 class="fw-bold mb-0 {% if balance < 0 %}text-primary{% else %}text-danger{% endif %}">
-                        ₹{{ balance|stringformat:".2f"|cut:"-" }}
-                    </h4>
+            <!-- Customer Info -->
+            <div class="p-4 bg-light rounded-4 mb-5">
+                <h6 class="fw-bold mb-3 text-primary">Customer Information</h6>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="text-muted small mb-1">Customer Name</div>
+                        <div class="fw-bold text-dark">{{ customer.customer_name }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small mb-1">Mobile Number</div>
+                        <div class="fw-bold text-dark">{{ customer.mobile_number }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small mb-1">Agent</div>
+                        <div class="fw-bold text-dark">{{ customer.agent.name }}</div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="text-muted small mb-1">Payment Amount</div>
+                        <div class="fw-bold text-success fs-4">₹100.00</div>
+                    </div>
                 </div>
             </div>
 
@@ -39,23 +45,19 @@
                 {% csrf_token %}
                 <div class="row g-4">
                     <div class="col-md-6">
-                        <label class="form-label fw-bold">Amount to Pay (₹)</label>
-                        <input type="number" step="0.01" name="amount" class="form-control rounded-3 py-2" placeholder="0.00" required>
-                    </div>
-                    <div class="col-md-6">
                         <label class="form-label fw-bold">Payment Method</label>
-                        <select name="method" id="payment_method" class="form-select rounded-3 py-2" required onchange="toggleUTR()">
+                        <select name="payment_method" id="payment_method" class="form-select rounded-3 py-2" required onchange="toggleUTR()">
                             <option value="Cash">Cash</option>
                             <option value="UPI">UPI</option>
                         </select>
                     </div>
-                    <div class="col-md-12" id="utr_container" style="display: none;">
+                    <div class="col-md-6" id="utr_container" style="display: none;">
                         <label class="form-label fw-bold">UTR / Transaction Number <span class="text-danger">*</span></label>
                         <input type="text" name="utr_number" id="utr_input" class="form-control rounded-3 py-2" placeholder="Enter UPI Transaction Reference">
                     </div>
                     <div class="col-12">
                         <label class="form-label fw-bold">Payment Remark</label>
-                        <input type="text" name="remark" class="form-control rounded-3 py-2" placeholder="e.g. Paid for last 5 installations">
+                        <input type="text" name="remark" class="form-control rounded-3 py-2" placeholder="e.g. Payment for document approval">
                     </div>
                 </div>
                 <div class="mt-5 text-end">
@@ -69,13 +71,16 @@
 
     <div class="col-md-4">
         <div class="modern-card h-100">
-            <h5 class="fw-bold mb-4">Payment History</h5>
+            <h5 class="fw-bold mb-4">Recent Payments</h5>
             <div class="overflow-auto" style="max-height: 500px;">
-                {% for payment in payments %}
+                {% for payment in vendor.document_payments.all|slice:":10" %}
                 <div class="p-3 border-bottom border-light">
                     <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="fw-bold text-success">+ ₹{{ payment.amount }}</span>
+                        <span class="fw-bold text-success">₹{{ payment.amount }}</span>
                         <span class="badge-modern bg-secondary bg-opacity-10 text-secondary" style="font-size: 0.65rem;">{{ payment.method }}</span>
+                    </div>
+                    <div class="text-primary extra-small mb-1" style="font-size: 0.75rem;">
+                        <i class="bi bi-person me-1"></i>{{ payment.customer.customer_name }}
                     </div>
                     {% if payment.utr_number %}
                         <div class="text-primary extra-small mb-1" style="font-size: 0.75rem;"><i class="bi bi-hash me-1"></i>UTR: {{ payment.utr_number }}</div>
@@ -89,9 +94,7 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
     function toggleUTR() {
         const method = document.getElementById('payment_method').value;

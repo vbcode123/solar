@@ -71,6 +71,15 @@ urlpatterns = [
     path('agent-payment/<int:agent_id>/', views.agent_payment, name='agent_payment'), # Admin records payment for an agent
     path('extra-commissions/', views.extra_commissions, name='extra_commissions'), # Admin view of all agent extra earnings
     path('extra-payment/<int:agent_id>/', views.extra_payment, name='extra_payment'), # Admin records extra payment for an agent
+    path('customer-extra-payment/<int:customer_id>/', views.customer_extra_payment, name='customer_extra_payment'), # Admin records extra payment for individual customer
+
+    # Vendor Document Payment (Vendor Side)
+    path('vendor-document-payment/', views.vendor_document_payment, name='vendor_document_payment'),
+    path('vendor-document-payment/<int:cust_id>/', views.vendor_document_payment_form, name='vendor_document_payment_form'),
+    
+    # Vendor Document Payment (Admin Side)
+    path('vendor-document-payments/', views.admin_vendor_document_payments, name='admin_vendor_document_payments'),
+    path('vendor-document-payments/<int:vendor_id>/', views.admin_vendor_document_payment_details, name='admin_vendor_document_payment_details'),
 
     # Logout System
     path('logout/', views.logout_view, name='logout'), # Logout for both Admin & Agent

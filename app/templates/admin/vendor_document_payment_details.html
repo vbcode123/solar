@@ -1,0 +1,118 @@
+{% extends 'admin/admin_dashboard.html' %}
+{% load static %}
+
+{% block dashboard_title %}{{ vendor.name }} - Document Payments{% endblock %}
+{% block panel_name %}ADMIN PANEL{% endblock %}
+
+{% block page_title %}{{ vendor.name }}{% endblock %}
+{% block page_subtitle %}Document payments for {{ vendor.company_name }}.{% endblock %}
+
+{% block sidebar_nav %}
+<a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">
+    <i class="bi bi-grid-fill"></i> Dashboard
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'all_customers_list' %}active{% endif %}" href="{% url 'all_customers_list' %}">
+    <i class="bi bi-people-fill"></i> All Customers
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'add_agent' %}active{% endif %}" href="{% url 'add_agent' %}">
+    <i class="bi bi-person-plus-fill"></i> Add Agent
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_list' %}active{% endif %}" href="{% url 'agent_list' %}">
+    <i class="bi bi-people"></i> Agents
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'add_vendor' %}active{% endif %}" href="{% url 'add_vendor' %}">
+    <i class="bi bi-building"></i> Add Vendor
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'vendor_list' %}active{% endif %}" href="{% url 'vendor_list' %}">
+    <i class="bi bi-buildings"></i> Vendors
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'vendor_work_list' %}active{% endif %}" href="{% url 'vendor_work_list' %}">
+    <i class="bi bi-tools"></i> Assign Vendors
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'assigned_work_list' %}active{% endif %}" href="{% url 'assigned_work_list' %}">
+    <i class="bi bi-list-check"></i> Assigned Work
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'admin_customer_summary' %}active{% endif %}" href="{% url 'admin_customer_summary' %}">
+    <i class="bi bi-clipboard-check"></i> Customer Summary
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_commissions' or request.resolver_match.url_name == 'agent_payment' %}active{% endif %}" href="{% url 'agent_commissions' %}">
+    <i class="bi bi-cash-coin"></i> Agent Payments
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'admin_vendor_document_payments' %}active{% endif %}" href="{% url 'admin_vendor_document_payments' %}">
+    <i class="bi bi-receipt"></i> Vendor Doc Payments
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'admin_chat_list' or request.resolver_match.url_name == 'admin_chat' %}active{% endif %}" href="{% url 'admin_chat_list' %}" style="position: relative;">
+    <i class="bi bi-chat-dots-fill"></i> Vendor Chat
+    {% if unread_messages_count > 0 %}
+        <span class="notification-badge">{{ unread_messages_count }}</span>
+    {% endif %}
+</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="mb-4">
+    <a href="{% url 'admin_vendor_document_payments' %}" class="btn btn-light rounded-3 px-3">
+        <i class="bi bi-arrow-left me-1"></i> Back to All Vendors
+    </a>
+</div>
+
+<div class="modern-table-container">
+    <div class="table-responsive">
+        <table class="table modern-table mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-4">Customer</th>
+                    <th class="text-center">Amount</th>
+                    <th>Method</th>
+                    <th>UTR</th>
+                    <th>Date</th>
+                    <th>Remark</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for payment in payments %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="fw-bold text-dark">{{ payment.customer.customer_name }}</div>
+                        <small class="text-muted">{{ payment.customer.mobile_number }}</small>
+                    </td>
+                    <td class="text-center">
+                        <span class="fw-bold text-success">₹{{ payment.amount }}</span>
+                    </td>
+                    <td>
+                        <span class="badge-modern bg-secondary bg-opacity-10 text-secondary">{{ payment.method }}</span>
+                    </td>
+                    <td>
+                        {% if payment.utr_number %}
+                            <span class="text-primary small">{{ payment.utr_number }}</span>
+                        {% else %}
+                            <span class="text-muted small">-</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="text-muted small">{{ payment.date|date:"d M Y, H:i" }}</span>
+                    </td>
+                    <td>
+                        {% if payment.remark %}
+                            <span class="text-muted small">{{ payment.remark }}</span>
+                        {% else %}
+                            <span class="text-muted small">-</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">
+                        <div class="icon-navy p-4 rounded-circle d-inline-block mb-3">
+                            <i class="bi bi-inbox fs-1 opacity-25"></i>
+                        </div>
+                        <h5 class="text-muted">No payments yet</h5>
+                        <p class="small text-muted">When this vendor makes payments, they will appear here.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

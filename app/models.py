@@ -20,6 +20,8 @@ class Agent(models.Model):
     password = models.CharField(max_length=100)
     # Access control: If False, agent cannot login
     is_active = models.BooleanField(default=True)
+    # Commission amount per customer (admin can set this)
+    commission_per_customer = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=20.00)
     # Automatic timestamp
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -61,6 +63,8 @@ class Customer(models.Model):
     
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     remark = models.TextField(null=True, blank=True)
+    status_updated_by_name = models.CharField(max_length=255, null=True, blank=True)
+    status_updated_by_role = models.CharField(max_length=20, null=True, blank=True)
     
     # Vendor Assignment Fields
     vendor = models.ForeignKey('Vendor', on_delete=models.SET_NULL, null=True, blank=True, related_name='assigned_customers')
@@ -71,6 +75,13 @@ class Customer(models.Model):
     vendor_status = models.CharField(max_length=20, choices=VENDOR_STATUS_CHOICES, default='Pending')
     vendor_status_remark = models.TextField(null=True, blank=True)
     vendor_status_updated_at = models.DateTimeField(null=True, blank=True)
+    
+    # Extra Payment Fields
+    extra_payment_done = models.BooleanField(default=False)
+    extra_payment_amount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    
+    # Vendor Document Payment Fields
+    vendor_doc_payment_done = models.BooleanField(default=False)
     
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -134,6 +145,39 @@ class Vendor(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.company_name})"
+
+# Vendor Document Payment Model: Tracks payments made by vendors to admin for document approval
+class VendorDocumentPayment(models.Model):
+    PAYMENT_METHODS = [
+        ('UPI', 'UPI'),
+        ('Cash', 'Cash'),
+    ]
+
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='document_payments')
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='vendor_doc_payments')
+    amount = models.DecimalField(max_digits=10, decimal_places=2, default=100.00)
+    method = models.CharField(max_length=10, choices=PAYMENT_METHODS)
+    utr_number = models.CharField(max_length=50, null=True, blank=True)
+    date = models.DateTimeField(auto_now_add=True)
+    remark = models.CharField(max_length=255, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.vendor.name} - {self.customer.customer_name} - {self.amount}"
+
+# Customer Status History Model: Tracks all status changes
+class CustomerStatusHistory(models.Model):
+    customer = models.ForeignKey(Customer, on_delete=models.CASCADE, related_name='status_history')
+    status = models.CharField(max_length=20)
+    changed_by_name = models.CharField(max_length=255)
+    changed_by_role = models.CharField(max_length=20)  # 'Admin' or 'Vendor'
+    remark = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.customer.customer_name} - {self.status} by {self.changed_by_name} ({self.created_at.strftime('%d %b %Y %H:%M')})"
 
 # Chat Message Model: For admin-vendor communication
 class ChatMessage(models.Model):

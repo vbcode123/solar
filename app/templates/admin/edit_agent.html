@@ -57,6 +57,10 @@
                 <label class="form-label fw-bold">Password</label>
                 <input type="text" name="password" class="form-control rounded-4 py-2 bg-light border-0" value="{{ agent.password }}" required>
             </div>
+            <div class="col-md-6">
+                <label class="form-label fw-bold">Commission Amount per Customer</label>
+                <input type="number" name="commission_per_customer" step="0.01" class="form-control rounded-4 py-2 bg-light border-0" value="{{ agent.commission_per_customer }}" required>
+            </div>
         </div>
         <div class="mt-5 text-end border-top pt-4">
             <button type="submit" class="btn btn-modern-gold px-5 py-2">

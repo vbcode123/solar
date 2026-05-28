@@ -239,11 +239,14 @@ body {
             <a class="nav-link {% if request.resolver_match.url_name == 'vendor_installation_jobs' or request.resolver_match.url_name == 'vendor_job_details' %}active{% endif %}" href="{% url 'vendor_installation_jobs' %}">
                 <i class="bi bi-tools"></i> Installation Jobs
             </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'vendor_chat' %}active{% endif %}" href="{% url 'vendor_chat' %}" style="position: relative;">
+            <a class="nav-link {% if request.resolver_match.url_name == 'vendor_chat' %}active{% endif %}" href="#" style="position: relative;">
                 <i class="bi bi-chat-dots-fill"></i> Chat with Admin
                 {% if unread_messages_count > 0 %}
                     <span class="notification-badge">{{ unread_messages_count }}</span>
                 {% endif %}
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'vendor_document_payment' or request.resolver_match.url_name == 'vendor_document_payment_form' %}active{% endif %}" href="{% url 'vendor_document_payment' %}">
+                <i class="bi bi-cash-coin"></i> Payment For Document
             </a>
             <a class="nav-link" href="#">
                 <i class="bi bi-file-earmark-text-fill"></i> Quotations

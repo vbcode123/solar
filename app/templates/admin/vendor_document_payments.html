@@ -1,0 +1,113 @@
+{% extends 'admin/admin_dashboard.html' %}
+{% load static %}
+
+{% block dashboard_title %}Vendor Document Payments{% endblock %}
+{% block panel_name %}ADMIN PANEL{% endblock %}
+
+{% block page_title %}Vendor Document Payments{% endblock %}
+{% block page_subtitle %}View all vendors and their document payment status.{% endblock %}
+
+{% block sidebar_nav %}
+<a class="nav-link {% if request.resolver_match.url_name == 'admin_dashboard' %}active{% endif %}" href="{% url 'admin_dashboard' %}">
+    <i class="bi bi-grid-fill"></i> Dashboard
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'all_customers_list' %}active{% endif %}" href="{% url 'all_customers_list' %}">
+    <i class="bi bi-people-fill"></i> All Customers
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'add_agent' %}active{% endif %}" href="{% url 'add_agent' %}">
+    <i class="bi bi-person-plus-fill"></i> Add Agent
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_list' %}active{% endif %}" href="{% url 'agent_list' %}">
+    <i class="bi bi-people"></i> Agents
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'add_vendor' %}active{% endif %}" href="{% url 'add_vendor' %}">
+    <i class="bi bi-building"></i> Add Vendor
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'vendor_list' %}active{% endif %}" href="{% url 'vendor_list' %}">
+    <i class="bi bi-buildings"></i> Vendors
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'vendor_work_list' %}active{% endif %}" href="{% url 'vendor_work_list' %}">
+    <i class="bi bi-tools"></i> Assign Vendors
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'assigned_work_list' %}active{% endif %}" href="{% url 'assigned_work_list' %}">
+    <i class="bi bi-list-check"></i> Assigned Work
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'admin_customer_summary' %}active{% endif %}" href="{% url 'admin_customer_summary' %}">
+    <i class="bi bi-clipboard-check"></i> Customer Summary
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_commissions' or request.resolver_match.url_name == 'agent_payment' %}active{% endif %}" href="{% url 'agent_commissions' %}">
+    <i class="bi bi-cash-coin"></i> Agent Payments
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'admin_vendor_document_payments' %}active{% endif %}" href="{% url 'admin_vendor_document_payments' %}">
+    <i class="bi bi-receipt"></i> Vendor Doc Payments
+</a>
+<a class="nav-link {% if request.resolver_match.url_name == 'admin_chat_list' or request.resolver_match.url_name == 'admin_chat' %}active{% endif %}" href="{% url 'admin_chat_list' %}" style="position: relative;">
+    <i class="bi bi-chat-dots-fill"></i> Vendor Chat
+    {% if unread_messages_count > 0 %}
+        <span class="notification-badge">{{ unread_messages_count }}</span>
+    {% endif %}
+</a>
+{% endblock %}
+
+{% block dashboard_content %}
+<div class="modern-table-container">
+    <div class="table-responsive">
+        <table class="table modern-table mb-0">
+            <thead>
+                <tr>
+                    <th class="ps-4">Vendor</th>
+                    <th class="text-center">Total Customers</th>
+                    <th class="text-center">Completed</th>
+                    <th class="text-center">Payments</th>
+                    <th class="text-center">Total Paid</th>
+                    <th class="text-center">Pending Amount</th>
+                    <th class="text-center">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in vendors_data %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="fw-bold text-dark">{{ data.vendor.name }}</div>
+                        <div class="text-muted small mb-1">{{ data.vendor.company_name }}</div>
+                        <div class="text-muted small"><i class="bi bi-telephone me-1"></i>{{ data.vendor.phone }}</div>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge-modern bg-info bg-opacity-10 text-info px-3">{{ data.total_customers }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge-modern bg-success bg-opacity-10 text-success px-3">{{ data.completed_customers }}</span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge-modern bg-secondary bg-opacity-10 text-secondary px-3">{{ data.payment_count }}</span>
+                    </td>
+                    <td class="text-center">
+                        <div class="fw-bold text-success">₹{{ data.total_payments|stringformat:".2f" }}</div>
+                    </td>
+                    <td class="text-center">
+                        <div class="fw-bold {% if data.pending_amount > 0 %}text-danger{% else %}text-success{% endif %}">
+                            ₹{{ data.pending_amount|stringformat:".2f" }}
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <a href="{% url 'admin_vendor_document_payment_details' data.vendor.id %}" class="btn btn-sm btn-modern btn-modern-primary py-1 px-4">
+                            <i class="bi bi-eye me-1"></i> View
+                        </a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-5 text-muted">
+                        <div class="icon-navy p-4 rounded-circle d-inline-block mb-3">
+                            <i class="bi bi-inbox fs-1 opacity-25"></i>
+                        </div>
+                        <h5 class="text-muted">No vendors found</h5>
+                        <p class="small text-muted">When vendors make payments, they will appear here.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

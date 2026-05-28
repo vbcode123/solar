@@ -24,9 +24,24 @@
 {% endblock %}
 
 {% block welcome_msg %}Welcome back, {{ agent.name }}!{% endblock %}
-{% block sub_welcome %}Here is your performance overview for today.{% endblock %}
+{% block sub_welcome %}{% endblock %}
 
 {% block dashboard_content %}
+<!-- Commission Banner at Top -->
+<div class="modern-card mb-4" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05)); border: 2px dashed rgba(245, 158, 11, 0.5);">
+    <div class="d-flex align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <div class="icon-gold rounded-circle me-3" style="width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                <i class="bi bi-cash-coin fs-2"></i>
+            </div>
+            <div>
+                <h6 class="fw-bold mb-1 text-dark">Your Commission Rate</h6>
+                <h3 class="fw-bold mb-0" style="color: var(--gold-primary);">₹{{ agent.commission_per_customer|stringformat:".2f" }} per Customer</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4">
     <!-- Profile Section -->
     <div class="col-lg-4">

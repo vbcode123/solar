@@ -303,13 +303,13 @@ body {
                 <i class="bi bi-people-fill"></i> Agent List
             </a>
             <div class="sidebar-divider my-2 mx-3" style="border-top: 1px solid rgba(255,255,255,0.05);"></div>
-            <a class="nav-link {% if request.resolver_match.url_name == 'add_vendor' %}active{% endif %}" href="#">
+            <a class="nav-link {% if request.resolver_match.url_name == 'add_vendor' %}active{% endif %}" href="{% url 'add_vendor' %}">
                 <i class="bi bi-shop"></i> Add Vendor
             </a>
             <a class="nav-link {% if request.resolver_match.url_name == 'vendor_list' or request.resolver_match.url_name == 'edit_vendor' %}active{% endif %}" href="{% url 'vendor_list' %}">
                 <i class="bi bi-building-fill"></i> Vendor List
             </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'admin_chat' or request.resolver_match.url_name == 'admin_chat_list' %}active{% endif %}" href="{% url 'admin_chat_list' %}" style="position: relative;">
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin_chat' or request.resolver_match.url_name == 'admin_chat_list' %}active{% endif %}" href="#" style="position: relative;">
                 <i class="bi bi-chat-dots-fill"></i> Chat with Vendors
                 {% if unread_messages_count > 0 %}
                     <span class="notification-badge">{{ unread_messages_count }}</span>
@@ -324,6 +324,9 @@ body {
             </a>
             <a class="nav-link {% if request.resolver_match.url_name == 'extra_commissions' or request.resolver_match.url_name == 'extra_payment' %}active{% endif %}" href="{% url 'extra_commissions' %}">
                 <i class="bi bi-stars"></i> Extra Payouts
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin_vendor_document_payments' %}active{% endif %}" href="{% url 'admin_vendor_document_payments' %}">
+                <i class="bi bi-receipt"></i> Vendor Doc Payments
             </a>
             <div class="sidebar-divider my-2 mx-3" style="border-top: 1px solid rgba(255,255,255,0.05);"></div>
             <a class="nav-link {% if request.resolver_match.url_name == 'vendor_work_list' %}active{% endif %}" href="{% url 'vendor_work_list' %}">

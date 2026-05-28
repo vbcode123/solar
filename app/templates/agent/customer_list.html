@@ -51,6 +51,7 @@
                 <th class="text-center">Status</th>
                 <th>Admin Remark</th>
                 <th>Date Submitted</th>
+                <th class="text-center">Action</th>
             </tr>
         </thead>
         <tbody>
@@ -89,10 +90,15 @@
                     {% endif %}
                 </td>
                 <td><span class="text-muted small">{{ customer.created_at|date:"d M, Y" }}</span></td>
+                <td class="text-center">
+                    <a href="{% url 'customer_details' customer.id %}" class="btn btn-sm btn-modern-gold">
+                        <i class="bi bi-eye me-1"></i> View
+                    </a>
+                </td>
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" class="text-center py-5">
+                <td colspan="7" class="text-center py-5">
                     <div class="text-muted">
                         <i class="bi bi-inbox display-4 mb-3 d-block opacity-25"></i>
                         <p>No customers submitted yet.</p>

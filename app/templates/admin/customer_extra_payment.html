@@ -1,0 +1,96 @@
+{% extends 'admin/admin_dashboard.html' %}
+{% load static %}
+
+{% block dashboard_title %}Extra Payment - {{ customer.customer_name }}{% endblock %}
+
+{% block page_title %}Extra Payment for {{ customer.customer_name }}{% endblock %}
+{% block page_subtitle %}Record an extra commission for this customer.{% endblock %}
+
+{% block dashboard_content %}
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="modern-card">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="fw-bold mb-0">Customer Details</h5>
+                <a href="{% url 'customer_details' customer.id %}" class="btn btn-sm btn-light rounded-4">
+                    <i class="bi bi-arrow-left me-1"></i> Back
+                </a>
+            </div>
+            
+            <div class="p-4 bg-light rounded-4 mb-5">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-1">Customer Name</small>
+                            <h5 class="fw-bold mb-0">{{ customer.customer_name }}</h5>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-1">Mobile Number</small>
+                            <p class="mb-0">{{ customer.mobile_number }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-1">Agent</small>
+                            <p class="mb-0">{{ customer.agent.name }}</p>
+                        </div>
+                        <div class="mb-3">
+                            <small class="text-muted d-block mb-1">Status</small>
+                            <span class="badge-modern bg-success bg-opacity-10 text-success">Confirmed</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Extra Amount (₹)</label>
+                        <input type="number" step="0.01" name="amount" class="form-control rounded-3 py-2" placeholder="0.00" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold">Payment Method</label>
+                        <select name="method" id="payment_method" class="form-select rounded-3 py-2" required onchange="toggleUTR()">
+                            <option value="Cash">Cash</option>
+                            <option value="UPI">UPI</option>
+                        </select>
+                    </div>
+                    <div class="col-md-12" id="utr_container" style="display: none;">
+                        <label class="form-label fw-bold">UTR / Transaction Number <span class="text-danger">*</span></label>
+                        <input type="text" name="utr_number" id="utr_input" class="form-control rounded-3 py-2" placeholder="Enter UPI Transaction Reference">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-bold">Remark</label>
+                        <input type="text" name="remark" class="form-control rounded-3 py-2" placeholder="e.g. Extra bonus for confirmed site">
+                    </div>
+                </div>
+                <div class="mt-5 text-end">
+                    <button type="submit" class="btn px-5 py-2" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; border-radius: 16px; font-weight: 700;">
+                        <i class="bi bi-cash-coin me-2"></i> Confirm Payment
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function toggleUTR() {
+        const method = document.getElementById('payment_method').value;
+        const utrContainer = document.getElementById('utr_container');
+        const utrInput = document.getElementById('utr_input');
+        
+        if (method === 'UPI') {
+            utrContainer.style.display = 'block';
+            utrInput.required = true;
+        } else {
+            utrContainer.style.display = 'none';
+            utrInput.required = false;
+            utrInput.value = '';
+        }
+    }
+</script>
+{% endblock %}

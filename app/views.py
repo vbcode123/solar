@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.paginator import Paginator
-from .models import Agent, Customer, Payment, Vendor, ChatMessage
+from .models import Agent, Customer, Payment, Vendor, ChatMessage, VendorDocumentPayment
 from django.db.models import Q, Count, Sum, Max
 from django.utils import timezone
 from datetime import timedelta
@@ -148,6 +148,8 @@ def extra_payment(request, agent_id):
                 utr_number=utr_number if method == 'UPI' else None,
                 remark=remark
             )
+            # Mark all confirmed customers as extra payment done
+            Customer.objects.filter(agent=agent, status='Confirmed').update(extra_payment_done=True)
             messages.success(request, f"Extra Commission of ₹{amount} paid to {agent.name}")
             return redirect('extra_payment', agent_id=agent.id)
             
@@ -156,6 +158,43 @@ def extra_payment(request, agent_id):
         'payments': payments,
         'confirmed_count': confirmed_count,
         'total_paid': total_paid,
+    })
+
+# Individual Customer Extra Payment
+def customer_extra_payment(request, customer_id):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return redirect('admin_login')
+    
+    customer = get_object_or_404(Customer, id=customer_id)
+    
+    if request.method == 'POST':
+        amount = request.POST.get('amount')
+        method = request.POST.get('method')
+        utr_number = request.POST.get('utr_number')
+        remark = request.POST.get('remark')
+        
+        if float(amount) <= 0:
+            messages.error(request, "Amount must be greater than 0")
+        else:
+            # Create payment
+            Payment.objects.create(
+                agent=customer.agent,
+                amount=amount,
+                method=method,
+                payment_type='Extra',
+                utr_number=utr_number if method == 'UPI' else None,
+                remark=remark
+            )
+            # Mark this specific customer as extra payment done
+            customer.extra_payment_done = True
+            customer.extra_payment_amount = amount
+            customer.save()
+            
+            messages.success(request, f"Extra Commission of ₹{amount} paid for {customer.customer_name}")
+            return redirect('all_customers_list')
+    
+    return render(request, 'admin/customer_extra_payment.html', {
+        'customer': customer
     })
 
 # ==========================================
@@ -282,6 +321,7 @@ def add_agent(request):
         an = request.POST.get('aadhar_number')
         p = request.POST.get('password')
         cp = request.POST.get('confirm_password')
+        commission = request.POST.get('commission_per_customer')
         
         # Files
         photo = request.FILES.get('profile_photo')
@@ -304,7 +344,8 @@ def add_agent(request):
                 aadhar_number=an,
                 profile_photo=photo,
                 aadhar_card_image=aadhar_img,
-                password=p
+                password=p,
+                commission_per_customer=commission
             )
             messages.success(request, "Agent added successfully!")
             return redirect('agent_list')
@@ -356,6 +397,7 @@ def edit_agent(request, id):
         agent.address = request.POST.get('address')
         agent.aadhar_number = request.POST.get('aadhar_number')
         agent.password = request.POST.get('password')
+        agent.commission_per_customer = request.POST.get('commission_per_customer')
         
         # Update photos if provided
         if request.FILES.get('profile_photo'):
@@ -542,24 +584,53 @@ def update_vendor_status(request, cust_id):
     vendor = get_object_or_404(Vendor, id=vendor_id)
     customer = get_object_or_404(Customer, id=cust_id, vendor=vendor)
     
-    # Prevent status change if job is already complete or on hold
-    if customer.vendor_status == 'Complete':
-        messages.error(request, "Cannot update status - job is already completed!")
+    # Prevent status change if job is already confirmed or rejected
+    if customer.status == 'Confirmed':
+        messages.error(request, "Cannot update status - job is already confirmed!")
         return redirect('vendor_installation_jobs')
-    if customer.vendor_status == 'Hold':
-        messages.error(request, "Cannot update status - job is currently on hold!")
+    if customer.status == 'Rejected':
+        messages.error(request, "Cannot update status - job is currently rejected!")
         return redirect('vendor_installation_jobs')
     
     if request.method == 'POST':
-        status = request.POST.get('vendor_status')
+        vendor_status = request.POST.get('vendor_status')
         remark = request.POST.get('vendor_status_remark')
         
-        if status:
-            customer.vendor_status = status
+        if vendor_status:
+            customer.vendor_status = vendor_status
             customer.vendor_status_remark = remark
             customer.vendor_status_updated_at = timezone.now()
+            
+            # Map vendor status to customer status
+            if vendor_status == 'Pending':
+                new_status = 'Pending'
+            elif vendor_status == 'Approve':
+                new_status = 'Approved'
+            elif vendor_status == 'Complete':
+                new_status = 'Confirmed'
+            elif vendor_status == 'Hold':
+                new_status = 'Rejected'
+                
+            # Update customer status
+            customer.status = new_status
+                
+            # Set who updated the status
+            customer.status_updated_by_name = vendor.name
+            customer.status_updated_by_role = "Vendor"
+                
             customer.save()
-            messages.success(request, f"Job status updated to {status}!")
+            
+            # Save to status history
+            from app.models import CustomerStatusHistory
+            CustomerStatusHistory.objects.create(
+                customer=customer,
+                status=new_status,
+                changed_by_name=vendor.name,
+                changed_by_role="Vendor",
+                remark=remark
+            )
+            
+            messages.success(request, f"Job status updated!")
         else:
             messages.error(request, "Please select a status!")
             
@@ -723,8 +794,8 @@ def vendor_work_list(request):
     if not request.user.is_authenticated or not request.user.is_staff:
         return redirect('admin_login')
     
-    # Get all confirmed customers
-    customers = Customer.objects.filter(status='Confirmed').order_by('-created_at')
+    # Get only unassigned customers
+    customers = Customer.objects.filter(vendor__isnull=True).order_by('-created_at')
     vendors = Vendor.objects.filter(is_active=True)
     
     return render(request, 'admin/vendor_work_list.html', {
@@ -750,7 +821,7 @@ def assigned_work_list(request):
     if vendor_filter:
         assigned_customers = assigned_customers.filter(vendor__id=vendor_filter)
     if status_filter:
-        assigned_customers = assigned_customers.filter(vendor_status=status_filter)
+        assigned_customers = assigned_customers.filter(status=status_filter)
     
     # Pagination: 10 items per page
     paginator = Paginator(assigned_customers, 10)
@@ -827,17 +898,84 @@ def admin_agent_customers(request, agent_id):
 
 # Customer Details: Admin views all uploaded documents
 def customer_details(request, cust_id):
-    if not request.user.is_authenticated or not request.user.is_staff:
-        return redirect('admin_login')
     customer = get_object_or_404(Customer, id=cust_id)
-    return render(request, 'admin/customer_details.html', {'customer': customer})
-
-# Download All Documents as ZIP (Admin)
-def download_all_documents(request, cust_id):
-    if not request.user.is_authenticated or not request.user.is_staff:
-        return redirect('admin_login')
     
+    # Check if user is admin
+    if request.user.is_authenticated and request.user.is_staff:
+        return render(request, 'admin/customer_details.html', {'customer': customer})
+    
+    # Check if user is agent and owns this customer
+    agent_id = request.session.get('agent_id')
+    if agent_id:
+        try:
+            agent = Agent.objects.get(id=agent_id)
+            if customer.agent == agent:
+                return render(request, 'admin/customer_details.html', {'customer': customer})
+        except Agent.DoesNotExist:
+            pass
+    
+    # Check if user is vendor and this customer is assigned to them
+    vendor_id = request.session.get('vendor_id')
+    if vendor_id:
+        try:
+            vendor = Vendor.objects.get(id=vendor_id)
+            if customer.vendor == vendor:
+                return render(request, 'admin/customer_details.html', {'customer': customer})
+        except Vendor.DoesNotExist:
+            pass
+    
+    # If none of the above, redirect to login
+    messages.error(request, "You are not authorized to view this customer!")
+    if request.user.is_staff:
+        return redirect('admin_login')
+    elif agent_id:
+        return redirect('agent_login')
+    elif vendor_id:
+        return redirect('vendor_login')
+    else:
+        return redirect('home')
+
+# Download All Documents as ZIP
+def download_all_documents(request, cust_id):
     customer = get_object_or_404(Customer, id=cust_id)
+    authorized = False
+    
+    # Check if user is admin
+    if request.user.is_authenticated and request.user.is_staff:
+        authorized = True
+    
+    # Check if user is agent and owns this customer
+    if not authorized:
+        agent_id = request.session.get('agent_id')
+        if agent_id:
+            try:
+                agent = Agent.objects.get(id=agent_id)
+                if customer.agent == agent:
+                    authorized = True
+            except Agent.DoesNotExist:
+                pass
+    
+    # Check if user is vendor and this customer is assigned to them
+    if not authorized:
+        vendor_id = request.session.get('vendor_id')
+        if vendor_id:
+            try:
+                vendor = Vendor.objects.get(id=vendor_id)
+                if customer.vendor == vendor:
+                    authorized = True
+            except Vendor.DoesNotExist:
+                pass
+    
+    if not authorized:
+        messages.error(request, "You are not authorized to download these documents!")
+        if request.user.is_staff:
+            return redirect('admin_login')
+        elif agent_id:
+            return redirect('agent_login')
+        elif vendor_id:
+            return redirect('vendor_login')
+        else:
+            return redirect('home')
     
     # Create an in-memory ZIP file
     buffer = io.BytesIO()
@@ -908,6 +1046,86 @@ def vendor_download_all_documents(request, cust_id):
     response['Content-Disposition'] = f'attachment; filename="Documents_{customer.customer_name.replace(" ", "_")}.zip"'
     return response
 
+# ==========================================
+# VENDOR DOCUMENT PAYMENT VIEWS
+# ==========================================
+
+# Vendor Document Payment List: Shows all customers where vendor has completed, and payment status
+def vendor_document_payment(request):
+    vendor_id = request.session.get('vendor_id')
+    if not vendor_id:
+        return redirect('vendor_login')
+    vendor = get_object_or_404(Vendor, id=vendor_id)
+    
+    # Customers assigned to vendor, where vendor_status is Complete
+    customers = Customer.objects.filter(vendor=vendor, vendor_status='Complete').order_by('-vendor_status_updated_at')
+    completed_count = customers.count()
+    
+    # Payment history
+    payments = VendorDocumentPayment.objects.filter(vendor=vendor).order_by('-date')
+    total_paid = payments.aggregate(Sum('amount'))['amount__sum'] or 0
+    
+    # Calculate pending payments
+    paid_customers = customers.filter(vendor_doc_payment_done=True)
+    pending_customers = customers.filter(vendor_doc_payment_done=False)
+    pending_count = pending_customers.count()
+    pending_amount = pending_count * 100
+    
+    context = {
+        'vendor': vendor,
+        'customers': customers,
+        'payments': payments,
+        'approved_count': completed_count,
+        'total_paid': total_paid,
+        'pending_count': pending_count,
+        'pending_amount': pending_amount
+    }
+    
+    return render(request, 'vendor/document_payment_list.html', context)
+
+# Vendor Document Payment Form: For a specific customer
+def vendor_document_payment_form(request, cust_id):
+    vendor_id = request.session.get('vendor_id')
+    if not vendor_id:
+        return redirect('vendor_login')
+    vendor = get_object_or_404(Vendor, id=vendor_id)
+    customer = get_object_or_404(Customer, id=cust_id, vendor=vendor)
+    
+    if customer.vendor_status != 'Complete':
+        messages.warning(request, "This customer is not completed yet!")
+        return redirect('vendor_document_payment')
+    
+    if customer.vendor_doc_payment_done:
+        messages.warning(request, "Payment already done for this customer!")
+        return redirect('vendor_document_payment')
+    
+    if request.method == 'POST':
+        method = request.POST.get('payment_method')
+        utr_number = request.POST.get('utr_number', '')
+        remark = request.POST.get('remark', '')
+        
+        # Create payment
+        VendorDocumentPayment.objects.create(
+            vendor=vendor,
+            customer=customer,
+            amount=100.00,
+            method=method,
+            utr_number=utr_number,
+            remark=remark
+        )
+        
+        # Mark payment done
+        customer.vendor_doc_payment_done = True
+        customer.save()
+        
+        messages.success(request, "Payment recorded successfully!")
+        return redirect('vendor_document_payment')
+    
+    return render(request, 'vendor/document_payment_form.html', {
+        'vendor': vendor,
+        'customer': customer
+    })
+
 # Update Customer Status: Admin Approves, Confirms, or Rejects
 def update_status(request, cust_id):
     if not request.user.is_authenticated or not request.user.is_staff:
@@ -923,9 +1141,34 @@ def update_status(request, cust_id):
             customer.remark = remark
         else:
             customer.remark = "" # Clear remark if approved/confirmed
+        
+        # Also update vendor_status to match admin status for consistency
+        if new_status == 'Pending':
+            customer.vendor_status = 'Pending'
+        elif new_status == 'Approved':
+            customer.vendor_status = 'Approve'
+        elif new_status == 'Confirmed':
+            customer.vendor_status = 'Complete'
+        elif new_status == 'Rejected':
+            customer.vendor_status = 'Hold'
+            
+        # Set who updated the status
+        customer.status_updated_by_name = "Admin"
+        customer.status_updated_by_role = "Admin"
             
         customer.save()
-        messages.success(request, f"Customer status updated to {new_status}")
+        
+        # Save to status history
+        from app.models import CustomerStatusHistory
+        CustomerStatusHistory.objects.create(
+            customer=customer,
+            status=new_status,
+            changed_by_name="Admin",
+            changed_by_role="Admin",
+            remark=remark
+        )
+        
+        messages.success(request, f"Customer status updated to {new_status}!")
         
     return redirect('admin_agent_customers', agent_id=customer.agent.id)
 
@@ -943,6 +1186,53 @@ def logout_view(request):
     logout(request)
     messages.success(request, "Logged out successfully!")
     return redirect('home')
+
+# ==========================================
+# ADMIN - VENDOR DOCUMENT PAYMENTS
+# ==========================================
+def admin_vendor_document_payments(request):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return redirect('admin_login')
+    
+    # Get all vendors with data
+    vendors_data = []
+    vendors = Vendor.objects.all().order_by('-created_at')
+    
+    for vendor in vendors:
+        total_customers = Customer.objects.filter(vendor=vendor).count()
+        completed_customers = Customer.objects.filter(vendor=vendor, vendor_status='Complete').count()
+        total_payments = VendorDocumentPayment.objects.filter(vendor=vendor).aggregate(Sum('amount'))['amount__sum'] or 0
+        payment_count = VendorDocumentPayment.objects.filter(vendor=vendor).count()
+        pending_amount = (completed_customers * 100) - total_payments
+        
+        vendors_data.append({
+            'vendor': vendor,
+            'total_customers': total_customers,
+            'completed_customers': completed_customers,
+            'total_payments': total_payments,
+            'payment_count': payment_count,
+            'pending_amount': pending_amount
+        })
+    
+    context = {
+        'vendors_data': vendors_data
+    }
+    
+    return render(request, 'admin/vendor_document_payments.html', context)
+
+def admin_vendor_document_payment_details(request, vendor_id):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return redirect('admin_login')
+    
+    vendor = get_object_or_404(Vendor, id=vendor_id)
+    payments = VendorDocumentPayment.objects.filter(vendor=vendor).order_by('-date')
+    
+    context = {
+        'vendor': vendor,
+        'payments': payments
+    }
+    
+    return render(request, 'admin/vendor_document_payment_details.html', context)
 
 # ==========================================
 # CHAT SYSTEM

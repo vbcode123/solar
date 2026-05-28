@@ -22,10 +22,15 @@
     <div class="row g-4 align-items-center">
         <div class="col-lg-8">
             <h4 class="fw-bold text-dark mb-1">{{ customer.customer_name }}</h4>
-            <div class="text-muted mb-3">
+            <div class="text-muted mb-2">
                 <i class="bi bi-telephone me-2"></i>{{ customer.mobile_number }}
                 <span class="mx-2">•</span>
                 <i class="bi bi-geo-alt me-2"></i>{{ customer.address|truncatechars:40 }}
+            </div>
+            <div class="text-muted mb-3">
+                <i class="bi bi-person me-2"></i><span class="fw-bold text-navy">{{ customer.agent.name }}</span>
+                <span class="mx-2">•</span>
+                <i class="bi bi-telephone me-2"></i>{{ customer.agent.phone }}
             </div>
             {% if customer.vendor_remark %}
             <div class="p-3 bg-light rounded-4 border">
@@ -157,10 +162,10 @@
             </div>
         </div>
     </div>
-    <!-- Ownership Proof -->
+    <!-- Plot/Site Allotment Document -->
     <div class="col-md-4">
         <div class="modern-card h-100 d-flex flex-column">
-            <h6 class="fw-bold mb-3 text-primary">Ownership Proof</h6>
+            <h6 class="fw-bold mb-3 text-primary">Plot/Site Allotment Document</h6>
             <div class="bg-light rounded-4 p-4 text-center mb-3 flex-grow-1 d-flex align-items-center justify-content-center">
                 <i class="bi bi-file-earmark-check display-4 text-success"></i>
             </div>
@@ -171,10 +176,10 @@
             </div>
         </div>
     </div>
-    <!-- Vendor Quotation -->
+    <!-- Documents With Full Sign -->
     <div class="col-md-4">
         <div class="modern-card h-100 d-flex flex-column">
-            <h6 class="fw-bold mb-3 text-primary">Vendor Quotation</h6>
+            <h6 class="fw-bold mb-3 text-primary">Documents With Full Sign</h6>
             <div class="bg-light rounded-4 p-4 text-center mb-3 flex-grow-1 d-flex align-items-center justify-content-center">
                 <i class="bi bi-file-earmark-medical display-4 text-danger"></i>
             </div>

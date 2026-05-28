@@ -18,72 +18,98 @@
     <div class="table-responsive">
         <table class="table modern-table mb-0">
         <thead>
-            <tr>
-                <th class="ps-4">Customer Name</th>
-                <th>Mobile Number</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th class="text-center">Documents</th>
-                <th class="text-center">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for customer in customers %}
-            <tr>
-                <td class="ps-4">
-                    <div class="fw-bold text-dark">{{ customer.customer_name }}</div>
-                </td>
-                <td>{{ customer.mobile_number }}</td>
-                <td>
-                    {% if customer.status == 'Pending' %}
-                        <span class="badge-modern bg-warning bg-opacity-10 text-dark">Pending</span>
-                    {% elif customer.status == 'Approved' %}
-                        <span class="badge-modern bg-primary bg-opacity-10 text-primary">Approved</span>
-                    {% elif customer.status == 'Confirmed' %}
-                        <span class="badge-modern bg-success bg-opacity-10 text-success">Confirmed</span>
-                    {% elif customer.status == 'Rejected' %}
-                        <span class="badge-modern bg-danger bg-opacity-10 text-danger">Rejected</span>
-                    {% endif %}
-                </td>
-                <td>{{ customer.created_at|date:"d M, Y" }}</td>
-                <td class="text-center">
-                    <a href="{% url 'customer_details' customer.id %}" class="btn btn-sm btn-light border rounded-4 px-3 text-primary fw-bold">
-                        <i class="bi bi-file-earmark-text me-1"></i> View Docs
-                    </a>
-                </td>
-                <td class="text-center">
-                    <div class="d-flex gap-2 justify-content-center">
+                <tr>
+                    <th class="ps-4">Customer Name</th>
+                    <th>Mobile Number</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th class="text-center">Documents</th>
+                    <th class="text-center">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for customer in customers %}
+                <tr>
+                    <td class="ps-4">
+                        <div class="fw-bold text-dark">{{ customer.customer_name }}</div>
+                    </td>
+                    <td>{{ customer.mobile_number }}</td>
+                    <td>
                         {% if customer.status == 'Pending' %}
-                            <button type="button" class="btn btn-sm btn-primary rounded-4 px-3 fw-bold" onclick="confirmCustomerStatus('{{ customer.id }}', 'Approved', 'Approve this customer?')">
-                                <i class="bi bi-check-lg me-1"></i>Approve
-                            </button>
-                            <button type="button" class="btn btn-sm btn-danger rounded-4 px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#rejectModal{{ customer.id }}">
-                                <i class="bi bi-x-lg me-1"></i>Reject
-                            </button>
-                        
+                            <span class="badge-modern bg-warning bg-opacity-10 text-dark">Pending</span>
                         {% elif customer.status == 'Approved' %}
-                            <button type="button" class="btn btn-sm btn-success rounded-4 px-4 fw-bold" onclick="confirmCustomerStatus('{{ customer.id }}', 'Confirmed', 'Confirm installation for this customer?')">
-                                <i class="bi bi-patch-check-fill me-1"></i>Confirm
-                            </button>
-                        
+                            <span class="badge-modern bg-primary bg-opacity-10 text-primary">Approved</span>
                         {% elif customer.status == 'Confirmed' %}
-                            <span class="badge-modern bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3">
-                                <i class="bi bi-check-all me-1"></i>Finalized
-                            </span>
-                        
+                            <span class="badge-modern bg-success bg-opacity-10 text-success">Confirmed</span>
                         {% elif customer.status == 'Rejected' %}
-                            <span class="badge-modern bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3">
-                                <i class="bi bi-x-circle me-1"></i>Rejected
-                            </span>
+                            <span class="badge-modern bg-danger bg-opacity-10 text-danger">Rejected</span>
                         {% endif %}
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="6" class="text-center py-5 text-muted">No customers found for this agent.</td>
-            </tr>
-            {% endfor %}
+                        {% if customer.status_updated_by_name %}
+                            <div class="text-muted small">
+                                by {{ customer.status_updated_by_name }}
+                            </div>
+                        {% endif %}
+                        {% if customer.status_history.all %}
+                            <div class="mt-2">
+                                <small class="fw-bold text-muted">Status History:</small>
+                                <div class="mt-1">
+                                    {% for history in customer.status_history.all %}
+                                        <div class="small text-muted">
+                                            <span class="fw-semibold">{{ history.status }}</span> by <span class="fw-semibold">{{ history.changed_by_name }}</span>
+                                            {% if history.remark %}
+                                                - {{ history.remark }}
+                                            {% endif %}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endif %}
+                    </td>
+                    <td>{{ customer.created_at|date:"d M, Y" }}</td>
+                    <td class="text-center">
+                        <a href="{% url 'customer_details' customer.id %}" class="btn btn-sm btn-light border rounded-4 px-3 text-primary fw-bold">
+                            <i class="bi bi-file-earmark-text me-1"></i> View Docs
+                        </a>
+                    </td>
+                    <td class="text-center">
+                        <div class="d-flex gap-2 justify-content-center">
+                            {% if customer.status == 'Pending' %}
+                                <button type="button" class="btn btn-sm btn-primary rounded-4 px-3 fw-bold" onclick="confirmCustomerStatus('{{ customer.id }}', 'Approved', 'Approve this customer?')">
+                                    <i class="bi bi-check-lg me-1"></i>Approve
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger rounded-4 px-3 fw-bold" data-bs-toggle="modal" data-bs-target="#rejectModal{{ customer.id }}">
+                                    <i class="bi bi-x-lg me-1"></i>Reject
+                                </button>
+                            
+                            {% elif customer.status == 'Approved' %}
+                                <button type="button" class="btn btn-sm btn-success rounded-4 px-4 fw-bold" onclick="confirmCustomerStatus('{{ customer.id }}', 'Confirmed', 'Confirm installation for this customer?')">
+                                    <i class="bi bi-patch-check-fill me-1"></i>Confirm
+                                </button>
+                            
+                            {% elif customer.status == 'Confirmed' %}
+                                {% if customer.extra_payment_done %}
+                                    <span class="badge-modern bg-success bg-opacity-10 text-success border border-success border-opacity-25 px-3">
+                                        <i class="bi bi-check-all me-1"></i>Payment Done
+                                    </span>
+                                {% else %}
+                                    <a href="{% url 'customer_extra_payment' customer.id %}" class="btn btn-sm px-3" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; border-radius: 16px; font-weight: 700; text-decoration: none;">
+                                        <i class="bi bi-cash-coin me-1"></i>Extra Payment
+                                    </a>
+                                {% endif %}
+                            
+                            {% elif customer.status == 'Rejected' %}
+                                <span class="badge-modern bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-3">
+                                    <i class="bi bi-x-circle me-1"></i>Rejected
+                                </span>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5 text-muted">No customers found for this agent.</td>
+                </tr>
+                {% endfor %}
         </tbody>
     </table>
     </div>
