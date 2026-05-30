@@ -270,13 +270,18 @@ body {
 <body>
 
     <div class="sidebar" id="sidebar">
-        <div class="sidebar-logo-container">
-            <img src="{% static 'images/logo.png' %}" alt="Suryaghar Logo" class="img-fluid mb-3" style="max-height: 75px;">
-            <div class="text-center">
-                <span class="badge bg-warning text-dark fw-bold px-3 py-2" style="border-radius: 8px; font-size: 0.75rem; letter-spacing: 1px;">
-                    AGENT PORTAL
-                </span>
+        <div class="sidebar-logo-container d-flex justify-content-between align-items-center">
+            <div class="text-center w-100">
+                <img src="{% static 'images/logo.png' %}" alt="Suryaghar Logo" class="img-fluid mb-3" style="max-height: 75px;">
+                <div class="text-center">
+                    <span class="badge bg-warning text-dark fw-bold px-3 py-2" style="border-radius: 8px; font-size: 0.75rem; letter-spacing: 1px;">
+                        AGENT PORTAL
+                    </span>
+                </div>
             </div>
+            <button class="btn btn-light d-lg-none ms-2" id="closeSidebar">
+                <i class="bi bi-x-lg fs-4"></i>
+            </button>
         </div>
         
         <div class="sidebar-nav">
@@ -348,13 +353,21 @@ body {
     <script>
         const sidebar = document.getElementById('sidebar');
         const openBtn = document.getElementById('openSidebar');
+        const closeBtn = document.getElementById('closeSidebar');
 
         function toggleSidebar() {
             sidebar.classList.toggle('show');
         }
 
+        function closeSidebar() {
+            sidebar.classList.remove('show');
+        }
+
         if (openBtn) {
             openBtn.addEventListener('click', toggleSidebar);
+        }
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeSidebar);
         }
 
         // Global SweetAlert2 Delete Confirmation
