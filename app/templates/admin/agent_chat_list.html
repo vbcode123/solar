@@ -1,0 +1,143 @@
+{% extends 'admin/admin_dashboard.html' %}
+
+{% block title %}Chat with Agents{% endblock %}
+
+{% block dashboard_title %}Chat with Agents{% endblock %}
+
+{% block content %}
+<style>
+    .agent-chat-item {
+        display: flex;
+        align-items: center;
+        padding: 20px;
+        border-bottom: 1px solid #f3f4f6;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-decoration: none;
+        border-radius: 16px;
+        margin-bottom: 8px;
+    }
+    .agent-chat-item:hover {
+        background: #f9fafb;
+        transform: translateX(5px);
+    }
+    .agent-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 24px;
+        margin-right: 20px;
+        flex-shrink: 0;
+    }
+    .agent-info {
+        flex: 1;
+        min-width: 0;
+    }
+    .agent-name {
+        font-weight: 700;
+        color: #1f2937;
+        font-size: 18px;
+        margin-bottom: 4px;
+    }
+    .agent-phone {
+        font-size: 14px;
+        color: #6b7280;
+        margin-bottom: 4px;
+    }
+    .last-message {
+        font-size: 13px;
+        color: #9ca3af;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .agent-meta {
+        text-align: right;
+        margin-left: 20px;
+    }
+    .last-message-time {
+        font-size: 12px;
+        color: #9ca3af;
+        margin-bottom: 8px;
+    }
+    .unread-badge {
+        background: #ef4444;
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 12px;
+        display: inline-block;
+        min-width: 24px;
+        text-align: center;
+    }
+</style>
+
+<div class="modern-card">
+    <div class="row g-4">
+        <div class="col-12">
+            <h2 class="fw-bold mb-4" style="color: #1f2937;">Chats</h2>
+            
+            <!-- Search Bar -->
+            <form method="GET" class="mb-4">
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" name="search" placeholder="Search agents by name or phone..." 
+                           style="flex: 1; padding: 14px 20px; border: 2px solid #e5e7eb; border-radius: 14px; font-size: 15px; outline: none; transition: all 0.3s;"
+                           value="{{ search_query }}">
+                    <button type="submit" style="padding: 14px 30px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; border: none; border-radius: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s;">
+                        <i class="bi bi-search me-2"></i>Search
+                    </button>
+                    {% if search_query %}
+                        <a href="{% url 'admin_agent_chat_list' %}" style="padding: 14px 24px; background: #f3f4f6; color: #1f2937; border: none; border-radius: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s; text-decoration: none;">
+                            Clear
+                        </a>
+                    {% endif %}
+                </div>
+            </form>
+            
+            {% for agent in agents %}
+                <a href="{% url 'admin_agent_chat' agent.id %}" class="agent-chat-item">
+                    <div class="agent-avatar">
+                        {% if agent.profile_photo %}
+                            <img src="{{ agent.profile_photo.url }}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
+                        {% else %}
+                            {{ agent.name|first|upper }}
+                        {% endif %}
+                    </div>
+                    <div class="agent-info">
+                        <div class="agent-name">{{ agent.name }}</div>
+                        <div class="agent-phone">{{ agent.phone }}</div>
+                        {% if agent.last_message_time %}
+                            <div class="last-message">Last: {{ agent.last_message_time|date:"d M H:i" }}</div>
+                        {% else %}
+                            <div class="last-message" style="font-style: italic;">No messages yet</div>
+                        {% endif %}
+                    </div>
+                    <div class="agent-meta">
+                        {% if agent.last_message_time %}
+                            <div class="last-message-time">{{ agent.last_message_time|date:"H:i" }}</div>
+                        {% endif %}
+                        {% if agent.unread_count > 0 %}
+                            <div class="unread-badge">{{ agent.unread_count }}</div>
+                        {% endif %}
+                    </div>
+                </a>
+            {% empty %}
+                <div class="text-center py-5">
+                    <div class="icon-navy p-4 rounded-circle d-inline-block mb-3">
+                        <i class="bi bi-chat-square-text fs-1 opacity-25"></i>
+                    </div>
+                    <h5 class="text-muted">No agents available</h5>
+                    <a href="{% url 'add_agent' %}" class="btn btn-link text-gold fw-bold text-decoration-none mt-2">Add first agent</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}

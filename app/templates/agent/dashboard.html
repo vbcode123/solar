@@ -21,6 +21,12 @@
 <a class="nav-link {% if request.resolver_match.url_name == 'agent_extra_commission' %}active{% endif %}" href="{% url 'agent_extra_commission' %}">
     <i class="bi bi-stars-fill"></i> My Extra Commission
 </a>
+<a class="nav-link {% if request.resolver_match.url_name == 'agent_chat' %}active{% endif %}" href="{% url 'agent_chat' %}" style="position: relative;">
+    <i class="bi bi-chat-dots-fill"></i> Chat with Admin
+    {% if unread_messages_count > 0 %}
+        <span class="notification-badge">{{ unread_messages_count }}</span>
+    {% endif %}
+</a>
 {% endblock %}
 
 {% block welcome_msg %}Welcome back, {{ agent.name }}!{% endblock %}
@@ -153,8 +159,8 @@
                             <h3 class="fw-bold mb-0 text-white">₹{{ total_combined_earnings|stringformat:".2f" }}</h3>
                         </div>
                         <div class="text-end d-none d-sm-block">
-                            <div class="badge bg-white bg-opacity-10 text-white mb-1 d-block">Reg: ₹{{ regular_earnings }}</div>
-                            <div class="badge bg-warning bg-opacity-10 text-warning d-block">Extra: ₹{{ extra_earnings }}</div>
+                            <div class="badge bg-white bg-opacity-10 text-white mb-1 d-block">Document Commission: ₹{{ regular_earnings }}</div>
+                            <div class="badge bg-warning bg-opacity-10 text-warning d-block">Installation Bonus: ₹{{ extra_earnings }}</div>
                         </div>
                     </div>
                 </a>

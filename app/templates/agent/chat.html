@@ -1,11 +1,11 @@
-{% extends 'vendor/dashboard.html' %}
+{% extends 'agent/agent_dashboard.html' %}
 
 {% block title %}Chat with Admin{% endblock %}
 
 {% block page_title %}Chat with Admin{% endblock %}
 {% block page_subtitle %}Communicate with Solar Management Team{% endblock %}
 
-{% block vendor_main_content %}
+{% block dashboard_content %}
 <style>
     .chat-container {
         height: calc(100vh - 350px);
@@ -95,7 +95,7 @@
     <!-- Messages -->
     <div class="chat-messages" id="chatMessages">
         {% for msg in messages %}
-            <div class="message {% if msg.sender == 'Vendor' %}sent{% else %}received{% endif %}">
+            <div class="message {% if msg.sender == 'Agent' %}sent{% else %}received{% endif %}">
                 <div class="message-bubble">
                     {% if msg.message %}
                         <div>{{ msg.message }}</div>
@@ -140,7 +140,7 @@
         
         const formData = new FormData(this);
         
-        fetch('{% url "send_chat_message" %}', {
+        fetch('{% url "send_agent_chat_message" %}', {
             method: 'POST',
             body: formData,
             headers: {

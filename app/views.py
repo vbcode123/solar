@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.paginator import Paginator
-from .models import Agent, Customer, Payment, Vendor, ChatMessage, VendorDocumentPayment
+from .models import Agent, Customer, Payment, Vendor, ChatMessage, VendorDocumentPayment, AgentChatMessage
 from django.db.models import Q, Count, Sum, Max
 from django.utils import timezone
 from datetime import timedelta
@@ -260,6 +261,7 @@ def admin_dashboard(request):
     
     # Get unread messages count for chat notifications
     unread_messages_count = ChatMessage.objects.filter(sender='Vendor', is_read=False).count()
+    unread_agent_messages_count = AgentChatMessage.objects.filter(sender='Agent', is_read=False).count()
     
     # Day-wise Report (Last 7 Days)
     day_wise_report = []
@@ -279,7 +281,8 @@ def admin_dashboard(request):
         'confirmed_customers': confirmed_customers,
         'pending_customers': pending_customers,
         'day_wise_report': day_wise_report,
-        'unread_messages_count': unread_messages_count
+        'unread_messages_count': unread_messages_count,
+        'unread_agent_messages_count': unread_agent_messages_count
     }
     return render(request, 'admin/dashboard.html', context)
 
@@ -668,6 +671,9 @@ def agent_dashboard(request):
     total_paid_extra = Payment.objects.filter(agent=agent, payment_type='Extra').aggregate(Sum('amount'))['amount__sum'] or 0
     total_combined_earnings = float(regular_earnings) + float(total_paid_extra)
     
+    # Unread chat messages count
+    unread_messages_count = AgentChatMessage.objects.filter(agent=agent, sender='Admin', is_read=False).count()
+    
     context = {
         'agent': agent,
         'total_apps': total_apps,
@@ -676,7 +682,8 @@ def agent_dashboard(request):
         'rejected_count': rejected_count,
         'total_combined_earnings': total_combined_earnings,
         'regular_earnings': regular_earnings,
-        'extra_earnings': total_paid_extra
+        'extra_earnings': total_paid_extra,
+        'unread_messages_count': unread_messages_count
     }
     
     return render(request, 'agent/dashboard.html', context)
@@ -687,6 +694,9 @@ def add_customer(request):
     if not agent_id:
         return redirect('agent_login')
     agent = get_object_or_404(Agent, id=agent_id)
+    
+    # Unread chat messages count
+    unread_messages_count = AgentChatMessage.objects.filter(agent=agent, sender='Admin', is_read=False).count()
     
     if request.method == 'POST':
         try:
@@ -710,7 +720,7 @@ def add_customer(request):
         except Exception as e:
             messages.error(request, f"Error: {str(e)}")
             
-    return render(request, 'agent/add_customer.html', {'agent': agent})
+    return render(request, 'agent/add_customer.html', {'agent': agent, 'unread_messages_count': unread_messages_count})
 
 # Agent Customer List: Shows all customers submitted by the logged-in agent
 def agent_customer_list(request):
@@ -718,6 +728,9 @@ def agent_customer_list(request):
     if not agent_id:
         return redirect('agent_login')
     agent = get_object_or_404(Agent, id=agent_id)
+    
+    # Unread chat messages count
+    unread_messages_count = AgentChatMessage.objects.filter(agent=agent, sender='Admin', is_read=False).count()
     
     status_filter = request.GET.get('status')
     customers = Customer.objects.filter(agent=agent).order_by('-created_at')
@@ -728,7 +741,8 @@ def agent_customer_list(request):
     return render(request, 'agent/customer_list.html', {
         'customers': customers, 
         'agent': agent,
-        'status_filter': status_filter
+        'status_filter': status_filter,
+        'unread_messages_count': unread_messages_count
     })
 
 # Agent Commission View: Agent sees their earnings and payment history
@@ -737,6 +751,9 @@ def agent_commission_view(request):
     if not agent_id:
         return redirect('agent_login')
     agent = get_object_or_404(Agent, id=agent_id)
+    
+    # Unread chat messages count
+    unread_messages_count = AgentChatMessage.objects.filter(agent=agent, sender='Admin', is_read=False).count()
     
     # Regular stats (Approved + Confirmed counts for base commission)
     approved_count = Customer.objects.filter(agent=agent, status__in=['Approved', 'Confirmed']).count()
@@ -761,7 +778,8 @@ def agent_commission_view(request):
         'total_paid_regular': total_paid_regular,
         'total_paid_extra': total_paid_extra,
         'balance': balance,
-        'payments': payments
+        'payments': payments,
+        'unread_messages_count': unread_messages_count
     })
 
 # Agent Extra Commission View
@@ -770,6 +788,9 @@ def agent_extra_commission_view(request):
     if not agent_id:
         return redirect('agent_login')
     agent = get_object_or_404(Agent, id=agent_id)
+    
+    # Unread chat messages count
+    unread_messages_count = AgentChatMessage.objects.filter(agent=agent, sender='Admin', is_read=False).count()
     
     # Extra stats
     confirmed_count = Customer.objects.filter(agent=agent, status='Confirmed').count()
@@ -782,7 +803,8 @@ def agent_extra_commission_view(request):
         'agent': agent,
         'confirmed_count': confirmed_count,
         'total_paid_extra': total_paid_extra,
-        'payments': payments
+        'payments': payments,
+        'unread_messages_count': unread_messages_count
     })
 
 # ==========================================
@@ -1258,10 +1280,12 @@ def admin_chat_list(request):
     
     # Get unread messages count for chat notifications
     unread_messages_count = ChatMessage.objects.filter(sender='Vendor', is_read=False).count()
+    unread_agent_messages_count = AgentChatMessage.objects.filter(sender='Agent', is_read=False).count()
     
     return render(request, 'admin/chat_list.html', {
         'vendors': vendors, 
         'unread_messages_count': unread_messages_count,
+        'unread_agent_messages_count': unread_agent_messages_count,
         'search_query': search_query
     })
 
@@ -1284,17 +1308,20 @@ def admin_chat(request, vendor_id):
     
     # Get unread messages count for chat notifications
     unread_messages_count = ChatMessage.objects.filter(sender='Vendor', is_read=False).count()
+    unread_agent_messages_count = AgentChatMessage.objects.filter(sender='Agent', is_read=False).count()
     
     context = {
         'vendor': vendor,
         'messages': messages,
         'vendors': vendors,
-        'unread_messages_count': unread_messages_count
+        'unread_messages_count': unread_messages_count,
+        'unread_agent_messages_count': unread_agent_messages_count
     }
     
     return render(request, 'admin/chat.html', context)
 
 # Vendor Chat: Vendor chats with admin
+@ensure_csrf_cookie
 def vendor_chat(request):
     vendor_id = request.session.get('vendor_id')
     if not vendor_id:
@@ -1311,9 +1338,13 @@ def vendor_chat(request):
     # Mark all admin messages as read
     messages.filter(sender='Admin', is_read=False).update(is_read=True)
     
+    # Unread chat messages count (now 0 since we just marked them read)
+    unread_messages_count = 0
+    
     context = {
         'vendor': vendor,
-        'messages': messages
+        'messages': messages,
+        'unread_messages_count': unread_messages_count
     }
     
     return render(request, 'vendor/chat.html', context)
@@ -1349,12 +1380,150 @@ def send_chat_message(request):
             )
             
             # Prepare response data
+            local_time = timezone.localtime(chat_message.created_at)
             response_data = {
                 'success': True,
                 'message': chat_message.message,
                 'image_url': chat_message.image.url if chat_message.image else None,
                 'sender': chat_message.sender,
-                'created_at': chat_message.created_at.strftime('%d %b %Y %H:%M')
+                'created_at': local_time.strftime('%d %b %Y %H:%M')
+            }
+            
+            return JsonResponse(response_data)
+    
+    return JsonResponse({'success': False, 'error': 'Invalid request'})
+
+# ==========================================
+# AGENT CHAT SYSTEM
+# ==========================================
+
+# Admin Agent Chat List: Show all agents in a list with search
+def admin_agent_chat_list(request):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return redirect('admin_login')
+    
+    search_query = request.GET.get('search', '')
+    
+    # Get all agents with last message and unread count
+    agents = Agent.objects.filter(is_active=True).annotate(
+        last_message_time=Max('chat_messages__created_at'),
+        unread_count=Count('chat_messages', filter=Q(chat_messages__sender='Agent', chat_messages__is_read=False))
+    ).order_by('-last_message_time', '-created_at')
+    
+    if search_query:
+        agents = agents.filter(
+            Q(name__icontains=search_query) | Q(phone__icontains=search_query)
+        )
+    
+    # Get unread messages count for chat notifications
+    unread_messages_count = ChatMessage.objects.filter(sender='Vendor', is_read=False).count()
+    unread_agent_messages_count = AgentChatMessage.objects.filter(sender='Agent', is_read=False).count()
+    
+    return render(request, 'admin/agent_chat_list.html', {
+        'agents': agents, 
+        'unread_messages_count': unread_messages_count,
+        'unread_agent_messages_count': unread_agent_messages_count,
+        'search_query': search_query
+    })
+
+# Admin Agent Chat: Admin chats with a specific agent
+def admin_agent_chat(request, agent_id):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return redirect('admin_login')
+    
+    agent = get_object_or_404(Agent, id=agent_id)
+    messages = AgentChatMessage.objects.filter(agent=agent).order_by('created_at')
+    
+    # Mark all agent messages as read
+    messages.filter(sender='Agent', is_read=False).update(is_read=True)
+    
+    # Get all agents with last message and unread count for sidebar
+    agents = Agent.objects.filter(is_active=True).annotate(
+        last_message_time=Max('chat_messages__created_at'),
+        unread_count=Count('chat_messages', filter=Q(chat_messages__sender='Agent', chat_messages__is_read=False))
+    ).order_by('-last_message_time', '-created_at')
+    
+    # Get unread messages count for chat notifications
+    unread_messages_count = ChatMessage.objects.filter(sender='Vendor', is_read=False).count()
+    unread_agent_messages_count = AgentChatMessage.objects.filter(sender='Agent', is_read=False).count()
+    
+    context = {
+        'agent': agent,
+        'messages': messages,
+        'agents': agents,
+        'unread_messages_count': unread_messages_count,
+        'unread_agent_messages_count': unread_agent_messages_count
+    }
+    
+    return render(request, 'admin/agent_chat.html', context)
+
+# Agent Chat: Agent chats with admin
+@ensure_csrf_cookie
+def agent_chat(request):
+    agent_id = request.session.get('agent_id')
+    if not agent_id:
+        return redirect('agent_login')
+    
+    agent = get_object_or_404(Agent, id=agent_id)
+    
+    # Update last seen
+    agent.last_seen = timezone.now()
+    agent.save()
+    
+    messages = AgentChatMessage.objects.filter(agent=agent).order_by('created_at')
+    
+    # Mark all admin messages as read
+    messages.filter(sender='Admin', is_read=False).update(is_read=True)
+    
+    # Unread chat messages count (now 0 since we just marked them read)
+    unread_messages_count = 0
+    
+    context = {
+        'agent': agent,
+        'messages': messages,
+        'unread_messages_count': unread_messages_count
+    }
+    
+    return render(request, 'agent/chat.html', context)
+
+# Send Agent Chat Message (common for admin and agent)
+def send_agent_chat_message(request):
+    if request.method == 'POST':
+        # Check if admin
+        if request.user.is_authenticated and request.user.is_staff:
+            agent_id = request.POST.get('agent_id')
+            agent = get_object_or_404(Agent, id=agent_id)
+            sender = 'Admin'
+        # Check if agent
+        elif request.session.get('agent_id'):
+            agent_id = request.session.get('agent_id')
+            agent = get_object_or_404(Agent, id=agent_id)
+            sender = 'Agent'
+            # Update last seen
+            agent.last_seen = timezone.now()
+            agent.save()
+        else:
+            return JsonResponse({'success': False, 'error': 'Not authenticated'})
+        
+        message_text = request.POST.get('message', '').strip()
+        image = request.FILES.get('image')
+        
+        if message_text or image:
+            chat_message = AgentChatMessage.objects.create(
+                agent=agent,
+                sender=sender,
+                message=message_text if message_text else None,
+                image=image if image else None
+            )
+            
+            # Prepare response data
+            local_time = timezone.localtime(chat_message.created_at)
+            response_data = {
+                'success': True,
+                'message': chat_message.message,
+                'image_url': chat_message.image.url if chat_message.image else None,
+                'sender': chat_message.sender,
+                'created_at': local_time.strftime('%d %b %Y %H:%M')
             }
             
             return JsonResponse(response_data)

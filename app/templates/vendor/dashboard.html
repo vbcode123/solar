@@ -239,7 +239,7 @@ body {
             <a class="nav-link {% if request.resolver_match.url_name == 'vendor_installation_jobs' or request.resolver_match.url_name == 'vendor_job_details' %}active{% endif %}" href="{% url 'vendor_installation_jobs' %}">
                 <i class="bi bi-tools"></i> Installation Jobs
             </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'vendor_chat' %}active{% endif %}" href="#" style="position: relative;">
+            <a class="nav-link {% if request.resolver_match.url_name == 'vendor_chat' %}active{% endif %}" href="{% url 'vendor_chat' %}" style="position: relative;">
                 <i class="bi bi-chat-dots-fill"></i> Chat with Admin
                 {% if unread_messages_count > 0 %}
                     <span class="notification-badge">{{ unread_messages_count }}</span>
@@ -262,18 +262,6 @@ body {
     </div>
 
     <div class="main-content">
-        <!-- Messages -->
-        <div class="container-fluid p-0">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert">
-                        <i class="bi bi-info-circle-fill me-2"></i> {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        </div>
-
         <!-- Topbar -->
         <div class="topbar d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-3">

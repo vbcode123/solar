@@ -309,10 +309,16 @@ body {
             <a class="nav-link {% if request.resolver_match.url_name == 'vendor_list' or request.resolver_match.url_name == 'edit_vendor' %}active{% endif %}" href="{% url 'vendor_list' %}">
                 <i class="bi bi-building-fill"></i> Vendor List
             </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'admin_chat' or request.resolver_match.url_name == 'admin_chat_list' %}active{% endif %}" href="#" style="position: relative;">
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin_chat' or request.resolver_match.url_name == 'admin_chat_list' %}active{% endif %}" href="{% url 'admin_chat_list' %}" style="position: relative;">
                 <i class="bi bi-chat-dots-fill"></i> Chat with Vendors
                 {% if unread_messages_count > 0 %}
                     <span class="notification-badge">{{ unread_messages_count }}</span>
+                {% endif %}
+            </a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'admin_agent_chat' or request.resolver_match.url_name == 'admin_agent_chat_list' %}active{% endif %}" href="{% url 'admin_agent_chat_list' %}" style="position: relative;">
+                <i class="bi bi-chat-square-text-fill"></i> Chat with Agents
+                {% if unread_agent_messages_count > 0 %}
+                    <span class="notification-badge">{{ unread_agent_messages_count }}</span>
                 {% endif %}
             </a>
             <div class="sidebar-divider my-2 mx-3" style="border-top: 1px solid rgba(255,255,255,0.05);"></div>
@@ -347,18 +353,6 @@ body {
     </div>
 
     <div class="main-content">
-        <!-- Messages -->
-        <div class="container-fluid p-0">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show border-0 shadow-sm rounded-4 mb-4" role="alert">
-                        <i class="bi bi-info-circle-fill me-2"></i> {{ message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                {% endfor %}
-            {% endif %}
-        </div>
-
         <!-- Topbar -->
         <div class="topbar d-flex justify-content-between align-items-center">
             <div class="d-flex align-items-center gap-3">

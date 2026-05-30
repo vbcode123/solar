@@ -65,6 +65,12 @@ urlpatterns = [
     path('admin-chat/<int:vendor_id>/', views.admin_chat, name='admin_chat'),
     path('vendor-chat/', views.vendor_chat, name='vendor_chat'),
     path('send-chat-message/', views.send_chat_message, name='send_chat_message'),
+    
+    # Agent Chat System (Admin-Agent)
+    path('admin-agent-chat/', views.admin_agent_chat_list, name='admin_agent_chat_list'),
+    path('admin-agent-chat/<int:agent_id>/', views.admin_agent_chat, name='admin_agent_chat'),
+    path('agent-chat/', views.agent_chat, name='agent_chat'),
+    path('send-agent-chat-message/', views.send_agent_chat_message, name='send_agent_chat_message'),
 
     # Payout Management (Admin Side)
     path('agent-commissions/', views.agent_commissions, name='agent_commissions'), # Admin view of all agent regular earnings

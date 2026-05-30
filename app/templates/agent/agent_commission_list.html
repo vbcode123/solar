@@ -30,7 +30,7 @@
                 <i class="bi bi-currency-rupee"></i>
             </div>
             <div>
-                <h6 class="text-muted small mb-1">Regular Earned</h6>
+                <h6 class="text-muted small mb-1">Document Commission Earned</h6>
                 <h3 class="fw-bold mb-0 text-dark">₹{{ total_earnings }}</h3>
                 <small class="text-muted extra-small">{{ approved_count }} Approved</small>
             </div>
@@ -42,7 +42,7 @@
                 <i class="bi bi-check-circle"></i>
             </div>
             <div>
-                <h6 class="text-muted small mb-1">Regular Received</h6>
+                <h6 class="text-muted small mb-1">Document Commission Payment by Admin</h6>
                 <h3 class="fw-bold mb-0 text-dark">₹{{ total_paid_regular }}</h3>
                 <small class="text-muted extra-small">Transferred</small>
             </div>
@@ -54,7 +54,7 @@
                 <i class="bi bi-stars"></i>
             </div>
             <div>
-                <h6 class="text-muted small mb-1">Extra Received</h6>
+                <h6 class="text-muted small mb-1">Installation Bonus</h6>
                 <h3 class="fw-bold mb-0 text-dark">₹{{ total_paid_extra }}</h3>
                 <small class="text-muted extra-small">{{ confirmed_count }} Completed</small>
             </div>
@@ -78,7 +78,7 @@
                 <i class="bi bi-clock-history"></i>
             </div>
             <div>
-                <h6 class="text-muted small mb-1">Reg. Balance</h6>
+                <h6 class="text-muted small mb-1">Pending Amount</h6>
                 <h3 class="fw-bold mb-0 text-dark">₹{{ balance|stringformat:".2f"|cut:"-" }}</h3>
                 <small class="text-muted extra-small">{% if balance < 0 %}Advance{% else %}Pending{% endif %}</small>
             </div>

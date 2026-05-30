@@ -102,8 +102,29 @@
 
         <div class="mt-5 text-end border-top pt-4">
             <button type="reset" class="btn btn-light px-4 py-2 me-2 rounded-4 fw-bold">Reset Form</button>
-            <button type="submit" class="btn btn-modern-gold px-5 py-2">Submit Application</button>
+            <button type="button" id="submitBtn" class="btn btn-modern-gold px-5 py-2">Submit Application</button>
         </div>
     </form>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.getElementById('submitBtn').addEventListener('click', function() {
+        Swal.fire({
+            title: 'Are you sure?',
+            text: 'Please review all details before submitting.',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonColor: '#f59e0b',
+            cancelButtonColor: '#6b7280',
+            confirmButtonText: 'Yes, Submit!',
+            cancelButtonText: 'Cancel'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                document.querySelector('form').submit();
+            }
+        });
+    });
+</script>
 {% endblock %}

@@ -20,6 +20,8 @@ class Agent(models.Model):
     password = models.CharField(max_length=100)
     # Access control: If False, agent cannot login
     is_active = models.BooleanField(default=True)
+    # Last seen for chat
+    last_seen = models.DateTimeField(null=True, blank=True)
     # Commission amount per customer (admin can set this)
     commission_per_customer = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, default=20.00)
     # Automatic timestamp
@@ -198,3 +200,23 @@ class ChatMessage(models.Model):
 
     def __str__(self):
         return f"{self.sender} to {self.vendor.name} - {self.created_at.strftime('%d %b %Y %H:%M')}"
+
+# Agent Chat Message Model: For admin-agent communication
+class AgentChatMessage(models.Model):
+    SENDER_CHOICES = [
+        ('Admin', 'Admin'),
+        ('Agent', 'Agent'),
+    ]
+
+    agent = models.ForeignKey(Agent, on_delete=models.CASCADE, related_name='chat_messages')
+    sender = models.CharField(max_length=10, choices=SENDER_CHOICES)
+    message = models.TextField(null=True, blank=True)
+    image = models.ImageField(upload_to='agent_chat_images/', null=True, blank=True)
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f"{self.sender} to {self.agent.name} - {self.created_at.strftime('%d %b %Y %H:%M')}"

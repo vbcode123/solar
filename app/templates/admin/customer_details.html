@@ -5,7 +5,7 @@
 {% block panel_name %}ADMIN PANEL{% endblock %}
 
 {% block page_title %}Documents: {{ customer.customer_name }}{% endblock %}
-{% block page_subtitle %}Submitted by Agent: {{ customer.agent.name }}{% endblock %}
+{% block page_subtitle %}Submitted by Agent: {{ customer.agent.name }} | Commission: ₹{{ customer.agent.commission_per_customer }} per Customer{% endblock %}
 
 {% block dashboard_content %}
 <div class="mb-4 d-flex justify-content-between align-items-center">
